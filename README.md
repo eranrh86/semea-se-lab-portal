@@ -7,13 +7,37 @@ Interactive lab guide for the SEMEA SE team — hands-on demos using Claude Code
 
 ---
 
-## Contents
+## How to make changes
+
+```bash
+# 1. Go to your local copy
+cd ~/semea-se-lab-portal
+
+# 2. Edit the portal
+open index.html          # preview in browser
+# or: code index.html    # open in VS Code
+
+# 3. Deploy (make sure AWS creds are loaded first)
+source /tmp/aws_env.sh
+./deploy.sh
+
+# 4. Save to GitHub
+git add index.html
+git commit -m "describe your change"
+git push
+```
+
+CloudFront propagates in ~60 seconds after the invalidation.
+
+---
+
+## File structure
 
 | File | Description |
 |------|-------------|
-| `index.html` | Full lab portal — single-page HTML (~120KB), served as-is |
+| `index.html` | Full lab portal — single HTML file, ~120KB, **edit this** |
 | `lab-portal-k8s.yaml` | Kubernetes manifests (Namespace, ConfigMap, Deployment, Service) |
-| `deploy.sh` | One-command deploy to S3 + CloudFront + EKS |
+| `deploy.sh` | Push to S3 + CloudFront + EKS in one command |
 
 ---
 
@@ -42,30 +66,30 @@ Interactive lab guide for the SEMEA SE team — hands-on demos using Claude Code
 
 ---
 
-## Deploying Updates
+## Infrastructure
 
-### Quick deploy (all targets)
-```bash
-./deploy.sh
-```
-
-### Manual
-```bash
-# Update S3 + CloudFront
-aws s3 cp index.html s3://semea-se-lab-portal/index.html --content-type text/html
-aws cloudfront create-invalidation --distribution-id E294W2KG94LUBD --paths "/*"
-
-# Update EKS
-kubectl create configmap lab-portal-html --from-file=index.html=index.html -n claude-lab --dry-run=client -o yaml | kubectl apply -f -
-kubectl rollout restart deployment/lab-portal -n claude-lab
-```
+| Resource | Value |
+|----------|-------|
+| S3 bucket | `semea-se-lab-portal` (us-east-1) |
+| CloudFront distribution | `E294W2KG94LUBD` |
+| EKS cluster | `karpenter-demo` (us-east-1) |
+| EKS namespace | `claude-lab` |
+| Deployment | 2-replica nginx, `index.html` served from ConfigMap |
 
 ---
 
-## Infrastructure
+## First-time setup on a new machine
 
-- **S3 bucket:** `semea-se-lab-portal` (us-east-1)
-- **CloudFront distribution:** `E294W2KG94LUBD`
-- **EKS cluster:** `karpenter-demo` (us-east-1)
-- **Namespace:** `claude-lab`
-- **Deployment:** 2-replica nginx serving `index.html` from ConfigMap
+```bash
+# Clone
+git clone https://github.com/eranrh86/semea-se-lab-portal.git ~/semea-se-lab-portal
+
+# Install tools if needed
+brew install awscli kubectl
+
+# Load AWS credentials (rotate hourly)
+source /tmp/aws_env.sh
+
+# Configure kubectl
+aws eks update-kubeconfig --name karpenter-demo --region us-east-1
+```
