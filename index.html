@@ -1,0 +1,2098 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Datadog SEMEA — AI-Powered SE Demo Lab</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0f1117;
+    --surface: #1a1d27;
+    --surface2: #22263a;
+    --border: #2e3250;
+    /* Datadog brand colors */
+    --accent: #632CA6;       /* Datadog Purple */
+    --accent-bright: #7b4dc9;
+    --accent2: #00B067;      /* Datadog Green */
+    --accent3: #ff6b6b;
+    --accent4: #ffa500;
+    --text: #e8eaf6;
+    --text2: #9ca3c4;
+    --text3: #6b7299;
+    --code-bg: #0d1117;
+    --success: #00B067;
+    --warning: #ffb347;
+    --info: #4fc3f7;
+    --prompt-bg: #130f1e;
+    --prompt-border: rgba(99,44,166,0.55);
+    --prompt-glow: rgba(99,44,166,0.15);
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); display: flex; min-height: 100vh; font-size: 15px; line-height: 1.6; }
+
+  /* ── SIDEBAR ── */
+  #sidebar {
+    width: 272px; min-width: 272px; background: var(--surface);
+    border-right: 1px solid var(--border); position: fixed;
+    top: 0; left: 0; bottom: 0; overflow-y: auto; z-index: 100;
+    display: flex; flex-direction: column;
+  }
+  .sidebar-header { padding: 22px 20px 14px; border-bottom: 1px solid var(--border); }
+  .sidebar-header .logo { display: flex; align-items: center; gap: 11px; margin-bottom: 8px; }
+  .logo-icon {
+    width: 38px; height: 38px; background: #632CA6;
+    border-radius: 9px; display: flex; align-items: center; justify-content: center;
+    font-size: 11px; font-weight: 800; color: #fff; letter-spacing: -0.5px; flex-shrink: 0;
+    font-family: 'Inter', sans-serif; border: 2px solid rgba(255,255,255,0.15);
+  }
+  .logo-text { font-weight: 700; font-size: 15px; color: var(--text); }
+  .logo-sub { font-size: 11px; color: var(--text3); font-weight: 400; margin-top: 1px; }
+  .sidebar-header .badge {
+    display: inline-flex; align-items: center; gap: 5px;
+    background: rgba(0,176,103,0.12); border: 1px solid rgba(0,176,103,0.28);
+    color: var(--accent2); font-size: 11px; border-radius: 20px; padding: 2px 10px;
+  }
+  .badge-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+  nav { padding: 10px 0; flex: 1; }
+  nav .section-label {
+    font-size: 10px; font-weight: 700; letter-spacing: 1.4px;
+    color: var(--text3); padding: 10px 20px 4px; text-transform: uppercase;
+  }
+  nav a {
+    display: flex; align-items: center; gap: 10px; padding: 8px 20px;
+    color: var(--text2); text-decoration: none; font-size: 13px;
+    border-left: 3px solid transparent; transition: all 0.15s;
+  }
+  nav a:hover { color: var(--text); background: rgba(99,44,166,0.1); }
+  nav a.active { color: #a07be0; border-left-color: var(--accent); background: rgba(99,44,166,0.12); }
+  nav a .nav-icon { font-size: 15px; width: 20px; text-align: center; flex-shrink: 0; }
+  nav a .nav-num {
+    margin-left: auto; font-size: 10px; background: var(--surface2);
+    border-radius: 10px; padding: 1px 7px; color: var(--text3); white-space: nowrap;
+  }
+  .nav-time { margin-left: auto; font-size: 10px; color: var(--text3); white-space: nowrap; }
+  .sidebar-footer { padding: 14px 20px; border-top: 1px solid var(--border); font-size: 11px; color: var(--text3); line-height: 1.6; }
+  .sidebar-footer .dd-brand { color: #a07be0; font-weight: 600; }
+
+  /* ── MAIN ── */
+  main { margin-left: 272px; flex: 1; max-width: 980px; padding: 40px 48px; }
+
+  /* ── HERO ── */
+  .hero {
+    background: linear-gradient(135deg, rgba(99,44,166,0.18), rgba(0,176,103,0.07));
+    border: 1px solid rgba(99,44,166,0.35); border-radius: 16px;
+    padding: 40px; margin-bottom: 32px; position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -60%; right: -5%;
+    width: 500px; height: 500px;
+    background: radial-gradient(circle, rgba(99,44,166,0.12) 0%, transparent 65%);
+    pointer-events: none;
+  }
+  .hero-eyebrow { font-size: 12px; font-weight: 600; color: #a07be0; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 10px; }
+  .hero h1 { font-size: 28px; font-weight: 700; margin-bottom: 8px; }
+  .hero h1 .dd { color: #a07be0; }
+  .hero p { color: var(--text2); font-size: 15px; max-width: 620px; margin-bottom: 20px; line-height: 1.65; }
+  .hero-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 24px; }
+  .tag {
+    background: rgba(255,255,255,0.06); border: 1px solid var(--border);
+    border-radius: 20px; padding: 4px 13px; font-size: 12px; color: var(--text2);
+    display: flex; align-items: center; gap: 5px;
+  }
+  .tag.dd-tag { border-color: rgba(99,44,166,0.4); color: #c0a4f0; background: rgba(99,44,166,0.08); }
+  .hero-stats { display: flex; gap: 24px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.07); }
+  .hero-stat .val { font-size: 22px; font-weight: 700; color: var(--accent2); }
+  .hero-stat .lbl { font-size: 11px; color: var(--text3); margin-top: 1px; }
+
+  /* ── SECTIONS ── */
+  .section { margin-bottom: 60px; scroll-margin-top: 24px; }
+  .section-header {
+    display: flex; align-items: center; gap: 14px; margin-bottom: 24px;
+    padding-bottom: 14px; border-bottom: 1px solid var(--border);
+  }
+  .section-num {
+    width: 36px; height: 36px; border-radius: 50%; display: flex;
+    align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+    flex-shrink: 0; background: #632CA6; color: #fff;
+  }
+  .section-num.setup { background: var(--surface2); color: var(--text3); border: 2px solid var(--border); font-size: 13px; }
+  .section h2 { font-size: 21px; font-weight: 700; flex: 1; }
+  .time-badge {
+    font-size: 11px; color: var(--text3); background: var(--surface2);
+    border: 1px solid var(--border); border-radius: 20px; padding: 3px 10px;
+    white-space: nowrap; flex-shrink: 0;
+  }
+  .section h3 {
+    font-size: 16px; font-weight: 600; margin: 26px 0 11px; color: var(--text);
+    padding-left: 12px; border-left: 3px solid var(--accent);
+  }
+  .section h3.green { border-left-color: var(--accent2); }
+  .section h3.info { border-left-color: var(--info); }
+  .section p { color: var(--text2); margin-bottom: 12px; }
+
+  /* ── CUSTOMER HOOK ── */
+  .customer-hook {
+    background: rgba(99,44,166,0.06); border: 1px solid rgba(99,44,166,0.25);
+    border-radius: 10px; padding: 12px 16px; margin: 0 0 20px;
+    font-size: 13.5px; color: var(--text2); line-height: 1.6;
+    border-left: 4px solid var(--accent);
+  }
+  .customer-hook strong { color: #c0a4f0; }
+  .customer-hook .hook-label { font-size: 10px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; color: #a07be0; margin-bottom: 5px; }
+
+  /* ── PROMPT BLOCKS ── */
+  .prompt-block {
+    background: var(--prompt-bg); border: 1px solid var(--prompt-border);
+    border-radius: 12px; margin: 14px 0; overflow: hidden;
+    box-shadow: 0 0 28px var(--prompt-glow); position: relative;
+  }
+  .prompt-block::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    background: linear-gradient(90deg, #632CA6, #a07be0, var(--accent2));
+  }
+  .prompt-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 9px 16px; background: rgba(99,44,166,0.1);
+    border-bottom: 1px solid rgba(99,44,166,0.22);
+  }
+  .prompt-label { display: flex; align-items: center; gap: 8px; color: #c0a4f0; font-weight: 600; font-size: 12px; }
+  .claude-badge {
+    width: 20px; height: 20px; border-radius: 50%; background: #632CA6;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 10px; font-weight: 700; color: #fff; font-family: 'Inter', sans-serif;
+  }
+  .prompt-body {
+    padding: 16px 20px; font-size: 14px; line-height: 1.75; color: #d4d8f0;
+    white-space: pre-wrap; word-break: break-word;
+  }
+  /* placeholder highlight */
+  .ph {
+    color: #00B067; font-style: italic;
+    background: rgba(255,200,0,0.1); border-radius: 3px; padding: 1px 4px;
+  }
+
+  .prompt-followup {
+    background: rgba(0,176,103,0.04); border: 1px solid rgba(0,176,103,0.28);
+    border-radius: 10px; margin: 8px 0 8px 24px; overflow: hidden;
+  }
+  .prompt-followup .prompt-header { background: rgba(0,176,103,0.08); border-color: rgba(0,176,103,0.2); }
+  .prompt-followup .prompt-label { color: var(--accent2); }
+  .prompt-followup .claude-badge { background: var(--accent2); color: #000; }
+  .prompt-followup .prompt-body { font-size: 13.5px; padding: 14px 18px; }
+
+  /* ── CODE BLOCKS ── */
+  .code-block { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; margin: 12px 0; overflow: hidden; }
+  .code-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 7px 16px; background: rgba(255,255,255,0.02);
+    border-bottom: 1px solid var(--border); font-size: 11.5px; color: var(--text3);
+  }
+  .code-header .lang { display: flex; align-items: center; gap: 6px; font-weight: 500; }
+  .copy-btn {
+    background: rgba(255,255,255,0.05); border: 1px solid var(--border);
+    color: var(--text3); border-radius: 5px; padding: 3px 10px; font-size: 11px;
+    cursor: pointer; transition: all 0.15s; font-family: 'Inter', sans-serif;
+  }
+  .copy-btn:hover { background: rgba(255,255,255,0.1); color: var(--text); }
+  .copy-btn.copied { background: rgba(0,176,103,0.15); border-color: var(--success); color: var(--success); }
+  pre { padding: 16px 20px; overflow-x: auto; font-family: 'JetBrains Mono', monospace; font-size: 13px; line-height: 1.7; }
+  .kw { color: #ff79c6; } .str { color: #f1fa8c; } .cm { color: #6272a4; font-style: italic; }
+
+  /* ── CARDS ── */
+  .card { background: var(--surface); border: 1px solid var(--border); border-radius: 12px; padding: 18px 22px; margin-bottom: 14px; }
+  .card.highlight { border-color: rgba(99,44,166,0.45); background: rgba(99,44,166,0.07); }
+  .card.success { border-color: rgba(0,176,103,0.4); background: rgba(0,176,103,0.05); }
+  .card.warning { border-color: rgba(255,179,71,0.4); background: rgba(255,179,71,0.05); }
+  .card.danger { border-color: rgba(255,107,107,0.4); background: rgba(255,107,107,0.05); }
+  .card.info { border-color: rgba(79,195,247,0.35); background: rgba(79,195,247,0.05); }
+  .card-title { font-weight: 600; margin-bottom: 8px; display: flex; align-items: center; gap: 8px; font-size: 14px; }
+  .card.highlight .card-title { color: #c0a4f0; }
+  .card.success .card-title { color: var(--success); }
+  .card.warning .card-title { color: var(--warning); }
+  .card.danger .card-title { color: var(--accent3); }
+  .card.info .card-title { color: var(--info); }
+
+  /* ── DD PRODUCT BADGES ── */
+  .dd-products { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; }
+  .dd-prod {
+    display: flex; align-items: center; gap: 6px;
+    background: rgba(99,44,166,0.1); border: 1px solid rgba(99,44,166,0.3);
+    border-radius: 20px; padding: 4px 12px; font-size: 12px; font-weight: 600; color: #c0a4f0;
+  }
+  .dd-prod.green { background: rgba(0,176,103,0.1); border-color: rgba(0,176,103,0.3); color: #5ed9a8; }
+  .dd-prod.blue { background: rgba(79,195,247,0.1); border-color: rgba(79,195,247,0.3); color: var(--info); }
+  .dd-prod.orange { background: rgba(255,165,0,0.1); border-color: rgba(255,165,0,0.3); color: #ffbb55; }
+  .dd-prod.red { background: rgba(255,107,107,0.1); border-color: rgba(255,107,107,0.3); color: #ff9090; }
+
+  /* ── PIPELINE ── */
+  .pipeline { display: flex; align-items: stretch; gap: 0; margin: 20px 0; overflow-x: auto; padding-bottom: 4px; }
+  .pipe-stage { flex: 1; min-width: 110px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; padding: 14px 12px; text-align: center; }
+  .pipe-stage.p1 { border-color: rgba(99,44,166,0.5); background: rgba(99,44,166,0.08); }
+  .pipe-stage.p2 { border-color: rgba(99,44,166,0.5); background: rgba(99,44,166,0.08); }
+  .pipe-stage.p3 { border-color: rgba(0,176,103,0.5); background: rgba(0,176,103,0.08); }
+  .pipe-stage.p4 { border-color: rgba(79,195,247,0.4); background: rgba(79,195,247,0.06); }
+  .pipe-stage.p5 { border-color: rgba(0,176,103,0.5); background: rgba(0,176,103,0.08); }
+  .pipe-icon { font-size: 22px; margin-bottom: 6px; }
+  .pipe-title { font-size: 12px; font-weight: 600; color: var(--text); margin-bottom: 3px; }
+  .pipe-sub { font-size: 10.5px; color: var(--text3); line-height: 1.4; }
+  .pipe-arrow { display: flex; align-items: center; padding: 0 5px; color: var(--text3); font-size: 18px; flex-shrink: 0; }
+
+  /* ── STEPS ── */
+  .steps { counter-reset: step; }
+  .step { display: flex; gap: 14px; margin-bottom: 18px; }
+  .step-num {
+    width: 26px; height: 26px; border-radius: 50%; flex-shrink: 0;
+    background: rgba(99,44,166,0.15); border: 2px solid rgba(99,44,166,0.4);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; margin-top: 3px; color: #c0a4f0;
+  }
+  .step-content h4 { font-size: 14px; font-weight: 600; margin-bottom: 4px; }
+  .step-content p { font-size: 13.5px; color: var(--text2); margin: 0; }
+
+  /* ── GRIDS ── */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin: 14px 0; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 14px; margin: 14px 0; }
+
+  /* ── STACK LAYERS ── */
+  .stack-layer { border-radius: 10px; padding: 14px 18px; margin-bottom: 8px; display: flex; align-items: flex-start; gap: 14px; }
+  .stack-layer.l1 { background: rgba(99,44,166,0.08); border: 1px solid rgba(99,44,166,0.3); }
+  .stack-layer.l2 { background: rgba(0,176,103,0.07); border: 1px solid rgba(0,176,103,0.3); }
+  .stack-layer.l3 { background: rgba(255,179,71,0.07); border: 1px solid rgba(255,179,71,0.3); }
+  .stack-layer .layer-icon { font-size: 22px; flex-shrink: 0; margin-top: 2px; }
+  .stack-layer h4 { font-size: 14px; font-weight: 600; margin-bottom: 3px; }
+  .stack-layer p { font-size: 13px; color: var(--text2); margin: 0; }
+  .stack-arrow { text-align: center; color: var(--text3); font-size: 16px; margin: -2px 0; }
+
+  /* ── CALLOUT ── */
+  .callout { display: flex; gap: 12px; padding: 13px 17px; border-radius: 8px; margin: 14px 0; font-size: 13.5px; }
+  .callout.tip { background: rgba(0,176,103,0.07); border-left: 3px solid var(--accent2); }
+  .callout.warn { background: rgba(255,179,71,0.07); border-left: 3px solid var(--warning); }
+  .callout.info { background: rgba(79,195,247,0.07); border-left: 3px solid var(--info); }
+  .callout.dd { background: rgba(99,44,166,0.07); border-left: 3px solid var(--accent); }
+  .callout-icon { font-size: 17px; flex-shrink: 0; margin-top: 2px; }
+  .callout-body { color: var(--text2); }
+  .callout-body strong { color: var(--text); }
+
+  /* ── RESULT ── */
+  .result-block { background: rgba(0,176,103,0.05); border: 1px solid rgba(0,176,103,0.25); border-radius: 10px; padding: 13px 17px; margin: 10px 0; font-size: 13px; color: var(--text2); }
+  .result-label { font-size: 10px; color: var(--success); font-weight: 700; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 6px; }
+
+  /* ── DIAGRAM ── */
+  .diagram { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 20px; font-family: 'JetBrains Mono', monospace; font-size: 12.5px; line-height: 1.8; color: var(--text2); margin: 14px 0; overflow-x: auto; white-space: pre; }
+
+  /* ── TABLE ── */
+  table { width: 100%; border-collapse: collapse; margin: 14px 0; font-size: 13.5px; }
+  th { background: var(--surface2); color: var(--text); font-weight: 600; text-align: left; padding: 9px 14px; border: 1px solid var(--border); }
+  td { padding: 8px 14px; border: 1px solid var(--border); color: var(--text2); }
+  tr:hover td { background: rgba(255,255,255,0.02); }
+
+  /* ── MISC ── */
+  .progress-bar { position: fixed; top: 0; left: 0; right: 0; height: 2px; background: linear-gradient(90deg, #632CA6, #a07be0, #00B067); transform-origin: left; transform: scaleX(0); transition: transform 0.1s; z-index: 200; }
+  .inline-code { background: rgba(255,255,255,0.06); border-radius: 4px; padding: 2px 6px; font-size: 12px; color: #a07be0; font-family: 'JetBrains Mono', monospace; }
+  ul, ol { padding-left: 20px; color: var(--text2); }
+  li { margin-bottom: 5px; font-size: 13.5px; }
+  li strong { color: var(--text); }
+  .prereq-header { background: var(--surface2); border-radius: 10px; padding: 14px 18px; margin-bottom: 14px; display: flex; align-items: center; gap: 12px; }
+  .prereq-header h3 { margin: 0; border: none; padding: 0; font-size: 15px; }
+
+  @media (max-width: 768px) {
+    #sidebar { transform: translateX(-100%); }
+    main { margin-left: 0; padding: 24px 18px; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+    .pipeline { flex-direction: column; }
+    .pipe-arrow { transform: rotate(90deg); align-self: center; }
+  }
+</style>
+</head>
+<body>
+<div class="progress-bar" id="progressBar"></div>
+
+<!-- ── SIDEBAR ── -->
+<aside id="sidebar">
+  <div class="sidebar-header">
+    <div class="logo">
+      <div class="logo-icon">DD</div>
+      <div>
+        <div class="logo-text">SE Demo Lab</div>
+        <div class="logo-sub">SEMEA · Claude Code</div>
+      </div>
+    </div>
+    <div class="badge"><span class="badge-dot"></span> Live on EKS</div>
+  </div>
+  <nav>
+    <div class="section-label">Start Here</div>
+    <a href="#concepts"><span class="nav-icon">🧠</span> What is Claude?</a>
+    <a href="#prereqs"><span class="nav-icon">⚙️</span> Prerequisites <span class="nav-time">~30 min</span></a>
+    <div class="section-label">Infrastructure</div>
+    <a href="#karpenter"><span class="nav-icon">⚡</span> Karpenter + EKS <span class="nav-num">Lab 1 · 30m</span></a>
+    <div class="section-label">Datadog Demos 🐶</div>
+    <a href="#customer"><span class="nav-icon">🏢</span> 3-Tier App + OPW Pipeline <span class="nav-num">Lab 2 · 45m</span></a>
+    <a href="#mcp"><span class="nav-icon">🤖</span> MCP · Dashboards · Monitors <span class="nav-num">Lab 3 · 20m</span></a>
+    <a href="#apm"><span class="nav-icon">🔍</span> APM · RUM · Synthetics <span class="nav-num">Lab 4 · 15m</span></a>
+    <a href="#github"><span class="nav-icon">🐙</span> GitHub + Team Reuse <span class="nav-num">Lab 5 · 15m</span></a>
+    <div class="section-label">AI for PMs 🎤</div>
+    <a href="#aipm"><span class="nav-icon">📋</span> Setting Up AI as a PM <span class="nav-num">Massimo</span></a>
+    <div class="section-label">Reference</div>
+    <a href="#meetingprep"><span class="nav-icon">⭐</span> Bonus: SE Meeting Prep <span class="nav-num">Daily AI</span></a>
+    <a href="#analytics"><span class="nav-icon">📊</span> Bonus: SE Team Analytics <span class="nav-num">Managers</span></a>
+    <a href="#skills"><span class="nav-icon">🎯</span> Agent Skills</a>
+    <a href="#tips"><span class="nav-icon">✅</span> Tips & Best Practices</a>
+    <a href="#ideas"><span class="nav-icon">💡</span> More Ideas</a>
+    <a href="#troubleshoot"><span class="nav-icon">🔧</span> Troubleshooting</a>
+    <a href="#cleanup"><span class="nav-icon">🧹</span> Cleanup & Teardown</a>
+  </nav>
+  <div class="sidebar-footer">
+    Cluster: <strong>semea-eks-&lt;your-name&gt;</strong><br>
+    Stack: EKS 1.35 · Karpenter · OPW · Datadog<br>
+    <span class="dd-brand">🐶 Datadog SEMEA SE Team</span>
+  </div>
+</aside>
+
+<!-- ── MAIN ── -->
+<main>
+
+<!-- ── HERO ── -->
+<div class="hero" id="intro">
+  <div class="hero-eyebrow">🐶 Datadog SEMEA · Sales Engineering</div>
+  <h1><span class="dd">AI-Powered</span> SE Demo Lab</h1>
+  <p>Use Claude Code to deploy real Kubernetes infrastructure and instrument it end-to-end with Datadog — APM, Logs, RUM, Synthetics, OPW Pipelines — in front of a customer, in minutes, with zero YAML written by hand.</p>
+  <div class="hero-tags">
+    <span class="tag dd-tag">🐶 Datadog APM + Logs + RUM</span>
+    <span class="tag dd-tag">📊 Live Dashboard Building</span>
+    <span class="tag dd-tag">🔀 OPW + Flex Logs</span>
+    <span class="tag">⚡ EKS 1.35 + Karpenter + Spot</span>
+    <span class="tag">🤖 Claude Code CLI</span>
+  </div>
+  <div class="hero-stats">
+    <div class="hero-stat"><div class="val">5</div><div class="lbl">Demo Labs</div></div>
+    <div class="hero-stat"><div class="val">~2h</div><div class="lbl">Full Lab Time</div></div>
+    <div class="hero-stat"><div class="val">1</div><div class="lbl">Cluster Per SE</div></div>
+    <div class="hero-stat"><div class="val">~70%</div><div class="lbl">EKS Cost Savings</div></div>
+    <div class="hero-stat"><div class="val">&lt;5min</div><div class="lbl">Deploy Any App</div></div>
+  </div>
+</div>
+
+<div class="card highlight">
+  <div class="card-title">🎯 How to Use This Lab</div>
+  <p style="font-size:13.5px;color:var(--text2);margin-bottom:10px">Every section has a <strong>ready-to-paste prompt</strong>. Open Claude Code, paste it, and Claude handles all the YAML, kubectl, errors, and verification.</p>
+  <ul>
+    <li><strong style="color:#c0a4f0">Purple blocks</strong> — paste into Claude to start something new</li>
+    <li><strong style="color:var(--accent2)">Teal follow-up blocks</strong> — next message in the same conversation</li>
+    <li><span class="ph">semea-eks-&lt;your-name&gt;</span> — replace with your own name on every prompt (e.g. <span class="inline-code">semea-eks-eran</span>)</li>
+  </ul>
+</div>
+
+<!-- ── CONCEPTS ── -->
+<div class="section" id="concepts">
+  <div class="section-header">
+    <div class="section-num setup">🧠</div>
+    <h2>What is Claude? — Core Concepts</h2>
+  </div>
+
+  <!-- CLAUDE -->
+  <h3>Claude — The AI</h3>
+  <p>Claude is an AI assistant built by Anthropic. Unlike a chatbot, Claude can <strong>take actions</strong> — read and write files, run shell commands, call APIs, browse the web, and connect to external services. In this lab we use it as a coding and infrastructure agent: you describe what you want in plain English, Claude figures out the commands and executes them.</p>
+
+  <div class="grid-3">
+    <div class="card highlight">
+      <div class="card-title">🌐 claude.ai</div>
+      <p style="font-size:13px;color:var(--text2);margin-top:6px">The web interface. Good for conversations, document analysis, and one-off tasks. Supports MCP via integrations. Requires a claude.ai subscription.</p>
+    </div>
+    <div class="card highlight">
+      <div class="card-title">💻 Claude Code (CLI)</div>
+      <p style="font-size:13px;color:var(--text2);margin-top:6px">The terminal agent used in this lab. Runs in your shell, reads your filesystem, executes commands, and operates autonomously. Installed via npm. <span class="inline-code">claude --dangerously-skip-permissions</span> skips confirmation prompts — essential for demos.</p>
+    </div>
+    <div class="card highlight">
+      <div class="card-title">📱 Claude API</div>
+      <p style="font-size:13px;color:var(--text2);margin-top:6px">For building your own AI-powered applications. Not used in this lab directly, but the same models power Claude Code and claude.ai.</p>
+    </div>
+  </div>
+
+  <!-- MCP -->
+  <h3>MCP — Model Context Protocol</h3>
+  <p>MCP is the standard that lets Claude connect to external services. Think of MCP servers as plugins: each one gives Claude a set of tools it can call — query Datadog metrics, search Jira tickets, read Slack messages, list Google Drive files. You install them once and they're available in every session.</p>
+
+  <div class="pipeline">
+    <div class="pipe-stage p1">
+      <div class="pipe-icon">🤖</div>
+      <div class="pipe-title">Claude</div>
+      <div class="pipe-sub">understands<br>your request</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">🔌</div>
+      <div class="pipe-title">MCP Server</div>
+      <div class="pipe-sub">translates to<br>API calls</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p3">
+      <div class="pipe-icon">🐶</div>
+      <div class="pipe-title">Datadog</div>
+      <div class="pipe-sub">returns live<br>metrics / logs</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">🔷</div>
+      <div class="pipe-title">Jira / Slack</div>
+      <div class="pipe-sub">creates ticket<br>posts message</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p5">
+      <div class="pipe-icon">💬</div>
+      <div class="pipe-title">You</div>
+      <div class="pipe-sub">get results<br>in plain text</div>
+    </div>
+  </div>
+
+  <div class="grid-2" style="margin-top:4px">
+    <div class="card">
+      <div class="card-title">🔌 MCP Servers in This Lab</div>
+      <ul style="margin-top:8px">
+        <li><strong>Datadog MCP</strong> — query metrics, logs, monitors, traces (Lab 3)</li>
+        <li><strong>Atlassian MCP</strong> — search Jira + Confluence (MCP Setup)</li>
+        <li><strong>Slack MCP</strong> — read channels, post messages (MCP Setup)</li>
+        <li><strong>Google Workspace MCP</strong> — Drive, Docs, Gmail, Calendar (MCP Setup)</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 What MCP Enables</div>
+      <ul style="margin-top:8px">
+        <li>"Are there any alerts firing?" → Claude queries Datadog live</li>
+        <li>"Create a follow-up ticket for CheckPoint" → Claude creates a Jira issue</li>
+        <li>"Post the weekly report to #semea-se" → Claude sends a Slack message</li>
+        <li>"Summarise the emails from Migdal this week" → Claude reads Gmail</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- CLAUDE.MD -->
+  <h3>CLAUDE.md — Persistent Memory</h3>
+  <p>Claude has no memory between sessions by default. <span class="inline-code">CLAUDE.md</span> is a markdown file Claude reads at the start of every session — put your role, team context, common instructions, and skill references there so you never repeat yourself.</p>
+
+  <div class="code-block">
+    <div class="code-header"><span class="lang">markdown — ~/.claude/CLAUDE.md example</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+    <pre># My Context
+I am an SE at Datadog covering Israel territory (SEMEA team).
+My EKS cluster: semea-eks-eran in us-east-1.
+My AWS credentials are stored in /tmp/aws_env.sh — source it before any kubectl command.
+My Datadog org: app.datadoghq.com (US1).
+
+# Skills available
+- ~/.claude/skills/weekly-report/SKILL.md — weekly Homerun activity report
+- ~/.claude/skills/poc-update/SKILL.md — update customer POC notes from Gmail + Calendar</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body"><strong>Skills</strong> are reusable SKILL.md playbooks — define a workflow once, trigger it by name forever. Full guide, template, and examples in the <strong>Agent Skills</strong> section under Reference.</div>
+  </div>
+</div>
+
+<!-- ── PREREQUISITES ── -->
+<div class="section" id="prereqs">
+  <div class="section-header">
+    <div class="section-num setup">⚙</div>
+    <h2>SE Prerequisites — One-Time Setup</h2>
+    <span class="time-badge">⏱ ~30 min</span>
+  </div>
+  <div class="card highlight">
+    <div class="card-title">🧑‍💻 Each SE Runs This Lab Independently</div>
+    <p style="font-size:13.5px;color:var(--text2);margin:6px 0 0">You use your own accounts for everything — AWS, Claude, and Datadog. Nothing is shared with the presenter or other attendees. Your cluster, your credentials, your demos.</p>
+  </div>
+
+  <div class="grid-3" style="margin-top:14px">
+    <div class="card success"><div class="card-title">☁️ AWS Account</div><p style="font-size:13px;color:var(--text2)">Your own AWS account with permission to create EKS clusters and EC2 instances</p></div>
+    <div class="card highlight"><div class="card-title">🤖 Claude Account</div><p style="font-size:13px;color:var(--text2)">Your own claude.ai subscription — Claude Code is installed on your laptop</p></div>
+    <div class="card success"><div class="card-title">🐶 Datadog Account</div><p style="font-size:13px;color:var(--text2)">Your own Datadog org — you'll need both an API Key and an Application Key</p></div>
+  </div>
+
+  <p style="margin-top:16px">Complete the setup steps below before the first lab. These are one-time — not customer-facing demos.</p>
+
+  <div class="prereq-header">
+    <span style="font-size:20px">💻</span>
+    <h3 style="border:none;padding:0;margin:0">Step 1 — Install iTerm2 (Mac)</h3>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>iTerm2 is required.</strong> The built-in macOS Terminal works, but iTerm2 gives you split panes, hotkey windows, and the Claude Session profile we set up below. If you already have it, skip to Step 2.</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card success">
+      <div class="card-title">Option A — Homebrew (recommended)</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 10px">If you have Homebrew installed, open Terminal and run:</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>brew install --cask iterm2</pre>
+      </div>
+    </div>
+    <div class="card highlight">
+      <div class="card-title">Option B — Direct Download</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 10px">Download the <strong>.zip</strong> from <span class="inline-code">iterm2.com</span>, unzip, and drag iTerm2 to <span class="inline-code">/Applications</span>.</p>
+      <p style="font-size:12px;color:var(--text3)">Free, no account needed. macOS may ask you to confirm opening it the first time — click Open.</p>
+    </div>
+  </div>
+
+  <div class="callout tip" style="margin-top:4px">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Don't have Homebrew?</strong> Install it first: open Terminal and paste <span class="inline-code">/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"</span></div>
+  </div>
+
+  <div class="prereq-header" style="margin-top:24px">
+    <span style="font-size:20px">🤖</span>
+    <h3 style="border:none;padding:0;margin:0">Step 2 — Install Claude Code + Configure iTerm2</h3>
+  </div>
+
+  <div class="callout info" style="margin-bottom:12px">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body"><strong>Prerequisites for this step:</strong> Homebrew installed · iTerm2 installed (Step 1) · Node.js 18+ installed (<span class="inline-code">node --version</span> to check) · claude.ai account with an active subscription</div>
+  </div>
+
+  <p style="font-size:13px;color:var(--text2);margin:0 0 8px"><strong>0. Install Homebrew + Node.js</strong> — skip if already installed:</p>
+  <div class="code-block" style="margin-bottom:16px">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+    <pre>/bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)" && brew install node</pre>
+  </div>
+
+  <p style="font-size:13px;color:var(--text2);margin:0 0 8px"><strong>1. Install &amp; authenticate Claude Code</strong> — run this in iTerm2:</p>
+  <div class="code-block" style="margin-bottom:16px">
+    <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+    <pre>npm install -g @anthropic-ai/claude-code && claude</pre>
+  </div>
+  <p style="font-size:13px;color:var(--text2);margin:0 0 8px"><strong>2. Set up iTerm2</strong> — once Claude opens, paste this prompt:</p>
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Set up my iTerm2: add alias "cl" for claude --dangerously-skip-permissions, print a welcome message on new terminal windows, and create an iTerm2 profile called "Claude Session" that launches Claude directly (shortcut ⌘⌥C). Edit ~/.zshrc.</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ You'll know it worked when</div>
+    Typing <span class="inline-code">cl</span> in any iTerm2 window opens a Claude Code session · Press ⌘⌥C anywhere to open a Claude hotkey window
+  </div>
+
+  <div class="callout tip" style="margin-top:12px">
+    <span class="callout-icon">📝</span>
+    <div class="callout-body"><strong>Create your CLAUDE.md now</strong> — Claude reads this file at the start of every session so you never have to re-explain your setup. Run this in Claude to generate yours:
+      <div class="code-block" style="margin-top:8px">
+        <div class="code-header"><span class="lang">paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>Create ~/.claude/CLAUDE.md with: my name is <span class="ph">&lt;your name&gt;</span>, I work at Datadog as an SE covering <span class="ph">&lt;your territory&gt;</span>. My EKS cluster will be semea-eks-<span class="ph">&lt;your-name&gt;</span> in us-east-1. AWS credentials are stored in /tmp/aws_env.sh — always source it before running kubectl or aws commands. My Datadog org is app.datadoghq.com (US1). When I say "my cluster" you know which one.</pre>
+      </div>
+    </div>
+  </div>
+
+  <div class="prereq-header" style="margin-top:24px">
+    <span style="font-size:20px">🔐</span>
+    <h3 style="border:none;padding:0;margin:0">Step 3 — Get Your Anthropic API Key</h3>
+  </div>
+
+  <div class="callout info" style="margin-bottom:12px">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body"><strong>What it's for:</strong> The Claude API key lets you call Claude programmatically — build chatbots, automate workflows, or power tools that go beyond the interactive CLI. It is separate from your claude.ai subscription.</div>
+  </div>
+
+  <div class="steps" style="margin-bottom:14px">
+    <div class="step">
+      <div class="step-num">1</div>
+      <div class="step-content"><p>Go to <span class="inline-code">console.anthropic.com</span> and sign in (or create a free account)</p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">2</div>
+      <div class="step-content"><p>Click <strong>API Keys</strong> in the left sidebar → <strong>Create Key</strong></p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">3</div>
+      <div class="step-content"><p>Name it <span class="inline-code">semea-lab-<span class="ph">&lt;your-initials&gt;</span></span></p></div>
+    </div>
+    <div class="step">
+      <div class="step-num">4</div>
+      <div class="step-content"><p><strong style="color:var(--accent3)">Copy immediately</strong> — it's only shown once. Store it in your password manager or <span class="inline-code">~/.zshrc</span> as <span class="inline-code">export ANTHROPIC_API_KEY="sk-ant-..."</span></p></div>
+    </div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Free tier:</strong> New accounts get free credits to experiment with. Usage beyond the free tier is pay-as-you-go — <span class="inline-code">claude-sonnet-4-5</span> costs ~$3/M input tokens, well under $1 for typical lab use.</div>
+  </div>
+
+  <div class="prereq-header" style="margin-top:24px">
+    <span style="font-size:20px">🐶</span>
+    <h3 style="border:none;padding:0;margin:0">Step 4 — Generate Your Datadog Keys</h3>
+  </div>
+
+  <div class="callout dd" style="margin-bottom:14px">
+    <span class="callout-icon">🐶</span>
+    <div class="callout-body"><strong>Do this before Lab 2.</strong> The Datadog Agent (Lab 2) needs the API Key to send data. Claude's MCP connection (Lab 3) needs the Application Key to read data. Both live in the same place — takes 2 minutes.</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card success">
+      <div class="card-title">🔑 API Key — sends data TO Datadog</div>
+      <div class="steps" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content"><p>Go to <span class="inline-code">app.datadoghq.com</span> → your avatar (bottom-left) → <strong>Organization Settings</strong></p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content"><p>Click <strong>API Keys</strong> → <strong>New Key</strong></p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content"><p>Name it <span class="inline-code">semea-lab-<span class="ph">&lt;your-initials&gt;</span></span> (e.g. <span class="inline-code">semea-lab-er</span>)</p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content"><p><strong style="color:var(--accent3)">Copy immediately</strong> — shown only once</p></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:4px">Used in: Lab 2 (Agent DaemonSet), OPW pipeline</p>
+    </div>
+    <div class="card highlight">
+      <div class="card-title">🗝️ Application Key — reads data FROM Datadog</div>
+      <div class="steps" style="margin-top:10px">
+        <div class="step">
+          <div class="step-num">1</div>
+          <div class="step-content"><p>Same page: <strong>Organization Settings</strong> → <strong>Application Keys</strong> → <strong>New Key</strong></p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">2</div>
+          <div class="step-content"><p>Name it <span class="inline-code">semea-lab-mcp-<span class="ph">&lt;your-initials&gt;</span></span></p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">3</div>
+          <div class="step-content"><p>Scope: <span class="inline-code">dashboards_write logs_read metrics_read monitors_write</span></p></div>
+        </div>
+        <div class="step">
+          <div class="step-num">4</div>
+          <div class="step-content"><p><strong style="color:var(--accent3)">Copy immediately</strong> — shown only once</p></div>
+        </div>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:4px">Used in: Lab 3 (Claude MCP queries, dashboards, monitors)</p>
+    </div>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Claude asks for the App Key mid-session?</strong> Normal — MCP reconnected. Just paste: <em>"Here is my Datadog Application Key: <span class="ph">&lt;app-key&gt;</span>"</em> and Claude continues.</div>
+  </div>
+
+  <div class="prereq-header" style="margin-top:24px">
+    <span style="font-size:20px">🔑</span>
+    <h3 style="border:none;padding:0;margin:0">Step 5 — AWS Credentials — Do This Every Session</h3>
+  </div>
+
+  <div class="card warning">
+    <div class="card-title">⚠️ Tokens expire ~every hour</div>
+    When Claude gets <span class="inline-code">ExpiredTokenException</span>, paste fresh credentials. AWS Console → account name → "Command line or programmatic access" → copy the three export lines.
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Start of every session — paste with your real credentials</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Save these AWS credentials to /tmp/aws_env.sh and configure kubectl for my EKS cluster semea-eks-<span class="ph">&lt;your-name&gt;</span> in us-east-1:
+
+export AWS_ACCESS_KEY_ID="<span class="ph">ASIA3GW7PX7P...</span>"
+export AWS_SECRET_ACCESS_KEY="<span class="ph">your-secret-key</span>"
+export AWS_SESSION_TOKEN="<span class="ph">your-session-token</span>"
+export AWS_DEFAULT_REGION="us-east-1"
+
+Run aws sts get-caller-identity to confirm, then kubectl get nodes to confirm EKS access.</div>
+  </div>
+
+  <div class="prompt-followup">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> When credentials expire mid-session</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Credentials expired — update /tmp/aws_env.sh and continue:
+export AWS_ACCESS_KEY_ID="<span class="ph">ASIA3GW7PX7P...</span>"
+export AWS_SECRET_ACCESS_KEY="<span class="ph">your-secret-key</span>"
+export AWS_SESSION_TOKEN="<span class="ph">your-session-token</span>"</div>
+  </div>
+
+  <div class="prereq-header" style="margin-top:24px">
+    <span style="font-size:20px">🔌</span>
+    <h3 style="border:none;padding:0;margin:0">Step 6 — Connect MCP Servers</h3>
+  </div>
+
+  <p style="margin-top:8px;margin-bottom:12px">MCP servers give Claude access to your tools — Datadog, Jira, Confluence, Slack, Gmail, Google Calendar, and Google Drive — from natural language. Run each command once; they persist across sessions.</p>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Security note:</strong> Only connect MCP servers vetted by Datadog's security team. The servers below are all approved. Do not connect arbitrary third-party servers from GitHub without review.</div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card highlight">
+      <div class="card-title">🐶 Datadog MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Query metrics, logs, dashboards, monitors, traces, and incidents from natural language. Used in Lab 3.</p>
+      <div class="code-block" style="margin-bottom:8px">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp add --transport http datadog https://mcp.datadoghq.com/mcp</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">Then configure it once inside Claude (first time only):</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>Configure the Datadog MCP for my Claude session. Site: datadoghq.com (US1).
+API Key: <span class="ph">&lt;your-api-key&gt;</span>
+Application Key: <span class="ph">&lt;your-app-key&gt;</span>
+
+Run check_datadog_mcp_setup to verify, then search for any logs from the last 5 minutes to confirm read access works.</pre>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🔷 Atlassian MCP (Jira + Confluence)</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Read and write Jira issues and Confluence pages. Ask Claude to find account notes, create follow-up tickets, or draft a Confluence page — all from chat. Browser OAuth with your Datadog Atlassian account.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp add --transport http -s user atlassian https://mcp.atlassian.com/v1/mcp</pre>
+      </div>
+      <div class="callout tip" style="margin-top:8px;padding:8px 12px">
+        <span class="callout-icon" style="font-size:14px">💡</span>
+        <div class="callout-body" style="font-size:12px">A browser window opens for Atlassian OAuth. Sign in with your <strong>@datadoghq.com</strong> account. Works for both Jira and Confluence in the same connection.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💬 Slack MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Read channels, search messages, post updates. The command below is the same for everyone — each person signs in with their own account.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp add --transport http --client-id 1601185624273.8899143856786 --callback-port 3118 slack https://mcp.slack.com/mcp</pre>
+      </div>
+      <div class="callout tip" style="margin-top:8px;padding:8px 12px">
+        <span class="callout-icon" style="font-size:14px">💡</span>
+        <div class="callout-body" style="font-size:12px">The <span class="inline-code">--client-id</span> is the shared <strong>Datadog Slack app ID</strong> — not a personal credential. When the browser opens, each person signs in with their own <strong>@datadoghq.com email</strong> (not Google SSO). Your session is yours only.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📁 Google Drive MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Access Google Drive, Docs, and Sheets with your Datadog account. Used by the SE Meeting Prep bonus.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp add datadog-google-workspace --transport http https://google-workspace-mcp-server-834963730936.us-central1.run.app/mcp</pre>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">✉️ Gmail MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Read, search, and draft emails from Claude. Useful for summarising customer threads, drafting follow-ups, and finding meeting context before a call.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp add --transport http gmail https://gmail.googleapis.com/mcp</pre>
+      </div>
+      <div class="callout tip" style="margin-top:8px;padding:8px 12px">
+        <span class="callout-icon" style="font-size:14px">💡</span>
+        <div class="callout-body" style="font-size:12px">Browser OAuth opens — sign in with your <strong>@datadoghq.com Google account</strong>. Grant the requested Gmail read/compose scopes.</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">📅 Google Calendar MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Read your calendar, check free/busy slots, and create events. Ask Claude "what's on my calendar today?" or "find a 30-minute slot with &lt;name&gt; next week".</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp add --transport http gcal https://calendar.googleapis.com/mcp</pre>
+      </div>
+      <div class="callout tip" style="margin-top:8px;padding:8px 12px">
+        <span class="callout-icon" style="font-size:14px">💡</span>
+        <div class="callout-body" style="font-size:12px">Browser OAuth opens — sign in with your <strong>@datadoghq.com Google account</strong>. Grant the Calendar read/write scopes.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="prompt-followup" style="margin-top:8px">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> Verify all MCPs are connected</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">List all my connected MCP servers and confirm each one is reachable. For Datadog, run check_datadog_mcp_setup. For Atlassian, search Confluence for any page about Datadog. For Slack, list the first 3 channels you can see. For Google Drive, list the files in my Drive root. For Gmail, show my last 3 emails. For Google Calendar, show today's events.</div>
+  </div>
+</div>
+
+<!-- ── LAB 1: KARPENTER ── -->
+<div class="section" id="karpenter">
+  <div class="section-header">
+    <div class="section-num">1</div>
+    <h2>Karpenter + EKS — Intelligent Node Provisioning</h2>
+    <span class="time-badge">⏱ 30 min</span>
+  </div>
+
+  <div class="customer-hook">
+    <div class="hook-label">🐶 Customer Trigger</div>
+    <strong>"Our cloud bill grew 40% but traffic only grew 15%."</strong> — Show them nodes spinning up on Spot in 45 seconds, watch the cost estimate, then scale to zero and watch it drop. The $830 → $260/month comparison is the close.
+  </div>
+
+  <p>Karpenter provisions exactly the right AWS node in ~45 seconds — no node groups, no wasted capacity. Combined with Spot instances, it cuts EKS cluster costs by up to 70%.</p>
+
+  <div class="diagram">  semea-eks-&lt;your-name&gt;
+  ┌──────────────────────────────────────────────────────────┐
+  │  Pending Pod ──▶ Karpenter ──▶ AWS EC2 API               │
+  │  (no capacity)    watches       provision Spot in ~45s   │
+  │                   pending       ↓                        │
+  │                   pods     New Node Joins · Pod Running ✓ │
+  └──────────────────────────────────────────────────────────┘</div>
+
+  <h3>Create Your Personal EKS Cluster</h3>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create a new EKS cluster called semea-eks-<span class="ph">&lt;your-name&gt;</span> in us-east-1 using eksctl with my AWS account. Requirements:
+- EKS version 1.35, existing VPC (ask me for subnet IDs if needed)
+- A small managed node group (2x t3.medium) as the base
+- Install Karpenter via Helm with:
+  - NodePool preferring Spot (m5, m6i, c5, c6i families), falling back to On-Demand
+  - WhenUnderutilized consolidation, 30s delay, max 100 vCPU
+  - AMD64 only
+- Install the EBS CSI driver add-on (required for StatefulSet PVCs)
+- Helm repo: helm repo add cowboysysop https://cowboysysop.github.io/charts/
+
+Warn me if any IAM permissions are missing before starting. Expected time: 15-20 min for cluster creation.</div>
+  </div>
+
+  <h3>Spot Economics — The Customer Story</h3>
+  <div class="grid-2">
+    <div class="card danger">
+      <div class="card-title">💸 On-Demand (What Customers Pay Today)</div>
+      <ul>
+        <li>m5.2xlarge: <strong>~$0.384/hr</strong></li>
+        <li>10-node cluster: <strong>~$830/month</strong></li>
+        <li>Nodes idle at night — still billed</li>
+      </ul>
+    </div>
+    <div class="card success">
+      <div class="card-title">💰 Spot + Karpenter (What We Show)</div>
+      <ul>
+        <li>Same m5.2xlarge: <strong>~$0.12/hr (70% off)</strong></li>
+        <li>10-node cluster: <strong>~$260/month</strong></li>
+        <li>Karpenter handles Spot interruptions automatically</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Demo: Trigger Scaling + Spot Interruption</h3>
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Deploy a test workload that needs more resources than any existing node has free. Watch Karpenter provision a new Spot node and the pod get scheduled. Then simulate a Spot interruption: cordon and drain that node, watch Karpenter replace it and the pod reschedule. Show me the full timeline — I want to see zero downtime.</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ Lab 1 Complete When</div>
+    <span class="inline-code">kubectl get nodes</span> shows at least one Spot node · Karpenter provisioned a new node under load in ~45s · Pod rescheduled after Spot interruption with zero downtime · Spot vs On-Demand cost comparison visible in Karpenter logs
+  </div>
+</div>
+
+<!-- ── LAB 2: REAL CUSTOMER SETUP ── -->
+<div class="section" id="customer">
+  <div class="section-header">
+    <div class="section-num">2</div>
+    <h2>Real Customer Demo — 3-Tier App + Log Pipeline</h2>
+    <span class="time-badge">⏱ 45 min</span>
+  </div>
+
+  <div class="card warning" style="margin-bottom:18px">
+    <div class="card-title">✋ Before You Start Lab 2 — Verify You Have</div>
+    <ul style="margin-top:8px">
+      <li><strong>Datadog API Key</strong> — from Prerequisites Step 4 · used to configure the Agent DaemonSet</li>
+      <li><strong>EKS cluster running</strong> — <span class="inline-code">kubectl get nodes</span> should return Ready nodes</li>
+      <li><strong>EBS CSI driver installed</strong> — needed for the Postgres PVC (Lab 1 installs this)</li>
+    </ul>
+  </div>
+
+  <div class="customer-hook">
+    <div class="hook-label">🐶 Customer Trigger</div>
+    <strong>"We're paying for logs nobody queries"</strong> or <strong>"We can't send logs outside the EU."</strong> — Deploy a realistic 3-tier app in 2-3 minutes, then wire the full OPW pipeline live: filter stock-app logs to Flex Logs (10x cheaper), everything else to standard. Show the Datadog index receiving data in real time.
+  </div>
+
+  <div class="dd-products">
+    <span class="dd-prod">🐶 Datadog Agent</span>
+    <span class="dd-prod green">📋 Log Management</span>
+    <span class="dd-prod green">🗃️ Flex Logs</span>
+    <span class="dd-prod blue">🔀 Observability Pipelines</span>
+  </div>
+
+  <!-- The customer stack -->
+  <h3>What We're Building — The Customer Stack</h3>
+  <p style="margin-bottom:14px">This is a realistic 3-tier stock trading app — the same architecture you'll find in most customer environments. Each tier maps to a common customer component so you can draw the parallel live in the meeting.</p>
+
+  <div class="grid-3" style="margin-bottom:8px">
+    <div class="card">
+      <div class="card-title">🌐 Tier 1 — Frontend</div>
+      <div style="margin-top:10px">
+        <p style="font-size:13px;font-weight:600;color:var(--text)">nginx:alpine</p>
+        <p style="font-size:12px;color:var(--text2);margin:4px 0">Serves the HTML/JS trading UI · proxies <span class="inline-code">/api/*</span> to the backend · exposed via AWS NLB</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:6px">💬 <em>Customer equivalent:</em> Apache / nginx / IIS / CDN-fronted SPA</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚙️ Tier 2 — Backend API</div>
+      <div style="margin-top:10px">
+        <p style="font-size:13px;font-weight:600;color:var(--text)">Node.js 20 (alpine)</p>
+        <p style="font-size:12px;color:var(--text2);margin:4px 0">REST API serving live stock prices · handles <span class="inline-code">GET /api/stocks</span> and <span class="inline-code">POST /api/trades</span> · writes to Postgres</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:6px">💬 <em>Customer equivalent:</em> Spring Boot / Django / .NET / Go microservice</p>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🗄️ Tier 3 — Database</div>
+      <div style="margin-top:10px">
+        <p style="font-size:13px;font-weight:600;color:var(--text)">PostgreSQL 15 (alpine)</p>
+        <p style="font-size:12px;color:var(--text2);margin:4px 0">StatefulSet with EBS-backed PVC · <span class="inline-code">trades</span> table · persistent across pod restarts</p>
+        <p style="font-size:12px;color:var(--text3);margin-top:8px;border-top:1px solid var(--border);padding-top:6px">💬 <em>Customer equivalent:</em> RDS / MySQL / Oracle / MongoDB on EBS</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="callout tip" style="margin-bottom:16px">
+    <span class="callout-icon">🎯</span>
+    <div class="callout-body"><strong>SE talking point:</strong> Claude deployed this entire 3-tier stack from one prompt — no YAML written by hand. When a customer asks "how long does it take to instrument our app?", you just showed them: 2-4 minutes. The same approach works for their actual stack — swap nginx for their web server, Node.js for their language, Postgres for their DB.</div>
+  </div>
+
+  <!-- Pipeline diagram -->
+  <div class="pipeline">
+    <div class="pipe-stage p1">
+      <div class="pipe-icon">🏗️</div>
+      <div class="pipe-title">EKS Pods</div>
+      <div class="pipe-sub">Frontend · Backend · DB<br>stdout / stderr</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">🐶</div>
+      <div class="pipe-title">DD Agent</div>
+      <div class="pipe-sub">DaemonSet<br>collects all logs</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p3">
+      <div class="pipe-icon">🔀</div>
+      <div class="pipe-title">OPW / Vector</div>
+      <div class="pipe-sub">Filter · Tag<br>Route · Transform</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p4">
+      <div class="pipe-icon">☁️</div>
+      <div class="pipe-title">DD Ingest</div>
+      <div class="pipe-sub">api.datadoghq.com<br>/api/v2/logs</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p5">
+      <div class="pipe-icon">🗂️</div>
+      <div class="pipe-title">DD Index</div>
+      <div class="pipe-sub">Standard or<br>Flex Logs 🐶</div>
+    </div>
+  </div>
+
+  <!-- PART A: 3-tier app -->
+  <h3>Part A — Deploy the 3-Tier Stock App <span style="font-size:12px;font-weight:400;color:var(--accent2);margin-left:6px">⏱ 2-4 min</span></h3>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Prerequisite:</strong> Verify EBS CSI driver is installed before this step — the database tier needs it for its PVC.<br>Check: <span class="inline-code">kubectl get deployment ebs-csi-controller -n kube-system</span></div>
+  </div>
+
+  <div class="diagram">  stock-demo namespace
+  ┌───────────────────────────────────────────────────────────────┐
+  │  [Browser] ──NLB──▶ [stock-frontend]  nginx:alpine (10MB)    │
+  │                     nginx proxies /api/* to backend           │
+  │                              ↓                               │
+  │                     [stock-backend]  node:20-alpine (50MB)   │
+  │                     Inline Node.js · no npm install needed   │
+  │                     GET /api/stocks → live prices            │
+  │                              ↓                               │
+  │                     [stock-db]  postgres:15-alpine (80MB)    │
+  │                     trades table · StatefulSet + EBS PVC     │
+  │                                                              │
+  │  All images: public.ecr.aws/docker/library/ (no rate limit)  │
+  └───────────────────────────────────────────────────────────────┘</div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> One prompt — full 3-tier stack</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Deploy a 3-tier stock trading app on semea-eks-<span class="ph">&lt;your-name&gt;</span> in namespace stock-demo. Target: all pods Running within 2-4 minutes. Use ONLY public.ecr.aws/docker/library/ images — no Docker builds.
+
+TIER 1 — FRONTEND (nginx:alpine):
+- Serve a stock dashboard HTML via ConfigMap — live price table for AAPL, MSFT, GOOGL, AMZN, TSLA updating every 3 seconds via fetch to /api/stocks (green/red on change)
+- nginx.conf proxies /api/ → http://stock-backend:3000/
+- NLB LoadBalancer on port 80, restricted to <span class="ph">&lt;your-public-ip&gt;</span>/32
+- Datadog annotations: source=nginx, service=stock-frontend, env=demo
+
+TIER 2 — BACKEND (node:20-alpine):
+- command: ["node","-e","<inline Node.js using only built-in http module — no npm install>"]
+- GET /api/stocks returns [{symbol, price, change, volume}] with randomized prices (AAPL≈182, MSFT≈385, GOOGL≈171, AMZN≈195, TSLA≈248, ±3 each call)
+- GET /api/health returns {"status":"ok","db":"connected"}
+- Port 3000, ClusterIP
+- Env: DD_SERVICE=stock-backend, DD_ENV=demo, DD_VERSION=1.0
+- Datadog annotations: source=nodejs, service=stock-backend
+
+TIER 3 — DATABASE (postgres:15-alpine):
+- StatefulSet, 1 replica, 1Gi PVC (requires EBS CSI)
+- POSTGRES_DB=stockdb, POSTGRES_USER=trader, POSTGRES_PASSWORD=StockDemo2024
+- Init SQL ConfigMap: CREATE TABLE IF NOT EXISTS trades(id SERIAL PRIMARY KEY, symbol VARCHAR(10), quantity INT, price DECIMAL(10,2), action VARCHAR(4), created_at TIMESTAMP DEFAULT NOW())
+- ClusterIP port 5432
+- Datadog annotations: source=postgresql, service=stock-db
+
+Generate one complete YAML manifest, apply with kubectl apply -f -, watch pods, and give me the NLB URL when all 3 are Running.</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ Expected Result</div>
+    stock-frontend-xxx &nbsp;1/1 Running<br>
+    stock-backend-xxx &nbsp;&nbsp;1/1 Running<br>
+    stock-db-0 &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;1/1 Running<br><br>
+    Frontend: <span style="color:var(--accent2)">http://&lt;nlb&gt;.elb.amazonaws.com</span> — prices update every 3s
+  </div>
+
+  <!-- PART B: OPW pipeline -->
+  <h3>Part B — Deploy Datadog Agent + OPW Pipeline</h3>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">On semea-eks-<span class="ph">&lt;your-name&gt;</span>, deploy the Datadog Agent and Observability Pipelines Worker:
+
+STEP 1 — Datadog Agent DaemonSet in namespace "datadog":
+- API key stored in Kubernetes secret datadog-secret (key: api-key)
+- Enable: logs collection, APM, process monitoring
+- Route logs through OPW: DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_ENABLED=true, DD_OBSERVABILITY_PIPELINES_WORKER_LOGS_URL=http://observability-pipelines-worker.observability-pipelines.svc:8282
+- Tags: env=demo, cluster_name=semea-eks-<span class="ph">&lt;your-name&gt;</span>
+
+STEP 2 — OPW / Vector in namespace "observability-pipelines":
+- Image: timberio/vector:0.43.1-debian (from Docker Hub — if rate-limited, use public.ecr.aws/docker/library/node:20-alpine as fallback and alert me)
+- Vector config via ConfigMap:
+  source: datadog_agent on port 8282
+  filter_stock: kube_namespace == "stock-demo" → add ddtags: "storage:flex,index:stock-flex" → sink to Datadog Logs API
+  filter_rest: everything else → sink to Datadog Logs API (standard)
+- CPU: 200m, Memory: 256Mi
+- Use the API key from the datadog-secret in namespace datadog
+
+Apply both, verify Agent pods are Running on all nodes, verify OPW starts and healthchecks pass.</div>
+  </div>
+
+  <h3>Part C — Create the Flex Logs Index (Manual UI Step)</h3>
+
+  <div class="callout dd">
+    <span class="callout-icon">🐶</span>
+    <div class="callout-body">
+      <strong>This step requires the Datadog UI — it cannot be automated via API.</strong> Navigate to: <strong>Logs → Indexes → New Index</strong>
+      <ol style="margin-top:8px;padding-left:18px">
+        <li>Name: <span class="inline-code">stock-demo-flex</span></li>
+        <li>Filter: <span class="inline-code">ddtags:storage:flex</span></li>
+        <li>Storage type: <strong>Flex Logs</strong>, Retention: 7 days</li>
+        <li><strong style="color:var(--accent3)">Move this index ABOVE your standard index</strong> — first match wins</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="prompt-followup">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> Verify the full pipeline</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Verify the end-to-end log pipeline: check OPW pod logs for events received/forwarded, restart stock-backend to generate fresh logs, then confirm logs appear in Datadog by querying: kube_namespace:stock-demo. Show me the event count at each pipeline stage.</div>
+  </div>
+
+  <div class="diagram">  FULL LOG PIPELINE
+  ═══════════════════════════════════════════════════════════════
+  EKS: stock-frontend + stock-backend + stock-db (stdout logs)
+       ↓ (Datadog Agent DaemonSet)
+  OPW / Vector (:8282)
+    ├── filter: kube_namespace=="stock-demo"
+    │     → tag: ddtags="storage:flex"
+    │     → Datadog Logs API → stock-demo-flex index (10x cheaper)
+    └── filter: everything else
+          → Datadog Logs API → main index (standard)
+  ═══════════════════════════════════════════════════════════════
+  Benefit: Archive logs cost ~90% less. Data stays in VPC until DD.</div>
+</div>
+
+<!-- ── LAB 4: MCP + DASHBOARDS + MONITORS ── -->
+<div class="section" id="mcp">
+  <div class="section-header">
+    <div class="section-num">3</div>
+    <h2>Datadog MCP — Dashboards, Monitors, Live Queries</h2>
+    <span class="time-badge">⏱ 20 min</span>
+  </div>
+
+  <div class="customer-hook">
+    <div class="hook-label">🐶 Customer Trigger</div>
+    <strong>"How does Datadog fit with our AI strategy?"</strong> — Open Claude, type "Are there any alerts firing right now? Diagnose and suggest a fix." Watch Claude query their Datadog org live, read traces, check logs, and propose a remediation. That IS the demo.
+  </div>
+
+  <div class="dd-products">
+    <span class="dd-prod">📊 Dashboards</span>
+    <span class="dd-prod">🔔 Monitors</span>
+    <span class="dd-prod green">📋 Logs Search</span>
+    <span class="dd-prod blue">🔍 APM Traces</span>
+    <span class="dd-prod orange">📓 Notebooks</span>
+  </div>
+
+  <div class="callout info">
+    <span class="callout-icon">✅</span>
+    <div class="callout-body"><strong>MCP already configured</strong> — you set up the Datadog MCP in Prerequisites Step 6. Your API + Application Keys are active. Jump straight into the prompts below.</div>
+  </div>
+
+  <h3>Query Your Live Data</h3>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Are there any Datadog monitors alerting right now? For each one: query the relevant logs and metrics, diagnose the root cause, and suggest a fix. If any look like noise, explain why and recommend a better threshold.</div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Show me the last 30 error logs from stock-backend in the past hour. Group by error type, find the most frequent, then check if there are correlated APM spans with high latency at the same timestamps. Summarize what's happening in 3 sentences.</div>
+  </div>
+
+  <h3>Build Dashboards</h3>
+  <p>Claude designs and creates full Datadog dashboards via the API — describe what you want to see and it handles widgets, queries, and layout.</p>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Stock App Overview Dashboard</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create a Datadog dashboard called "Stock App — semea-eks-<span class="ph">&lt;your-name&gt;</span>" with a dark theme. Include:
+
+ROW 1 — Service Health (timeseries, last 1h):
+- Request rate: trace.http.request.hits grouped by service
+- P95 latency: trace.http.request.duration.by_http_status.p95 for stock-backend
+- Error rate: trace.http.request.errors / trace.http.request.hits × 100
+
+ROW 2 — Pod Health (last 30m):
+- CPU per pod: kubernetes.cpu.usage.total grouped by pod_name, namespace:stock-demo
+- Memory per pod: kubernetes.memory.working_set grouped by pod_name
+- Restart count: kubernetes.containers.restarts by pod_name
+
+ROW 3 — Logs + DB:
+- Log volume timeseries by service (stock-frontend, stock-backend, stock-db)
+- Top errors: log events filtered status:error, service:stock-backend
+- PostgreSQL connections and query count by host
+
+Give me the dashboard URL when done.</div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> EKS + Stock App Dashboard</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create a Datadog dashboard called "EKS Stock App — semea-eks-<span class="ph">&lt;your-name&gt;</span>":
+
+- Node count over time: kubernetes_state.node.count
+- Spot vs On-Demand split: kubernetes_state.node.count by label_karpenter_sh_capacity_type
+- CPU utilization % by pod: kubernetes.cpu.usage / kubernetes.cpu.requests
+- Memory utilization % by pod: kubernetes.memory.usage / kubernetes.memory.limits
+- OPW: events to Flex Logs vs Standard index (vector.processed_events_total)
+- stock-backend request rate and error rate (from APM traces)
+
+Use query value widgets for totals so they're readable across the room during a demo.</div>
+  </div>
+
+  <h3>Create Monitors</h3>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create three Datadog monitors for the stock-demo namespace:
+
+1. "Stock Backend — High Error Rate": alert when error rate for service:stock-backend > 5% over 5 min, warn at 2%. Message: include service name and current error rate.
+
+2. "Stock DB — Connection Spike": alert when postgresql.connections > 20 for service:stock-db over 2 min.
+
+3. "OPW Pipeline — Dropped Events": alert when vector.component_errors_total > 0 for any OPW component over 5 min.
+
+For each: set notify_no_data=true after 10 min of missing data. Show me all three monitor links.</div>
+  </div>
+</div>
+
+<!-- ── LAB 5: APM + RUM + SYNTHETICS ── -->
+<div class="section" id="apm">
+  <div class="section-header">
+    <div class="section-num">4</div>
+    <h2>APM · RUM · Synthetics — Full Observability Stack</h2>
+    <span class="time-badge">⏱ 15 min</span>
+  </div>
+
+  <div class="customer-hook">
+    <div class="hook-label">🐶 Customer Trigger</div>
+    <strong>"Users complain the app is slow but we can't tell where."</strong> — APM traces the backend call chain. RUM shows the browser-side latency. Synthetics proactively tests the endpoint from multiple regions. Together they give you the full picture in one platform.
+  </div>
+
+  <div class="dd-products">
+    <span class="dd-prod blue">🔍 APM + Tracing</span>
+    <span class="dd-prod orange">👁️ RUM</span>
+    <span class="dd-prod">🧪 Synthetics</span>
+    <span class="dd-prod green">🗺️ Service Map</span>
+  </div>
+
+  <h3>APM — Service Map + Trace Analysis</h3>
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Using the Datadog MCP, query the APM data for the stock-demo namespace:
+1. Search for APM spans from stock-backend in the last 30 minutes — find the slowest 5 traces
+2. For the slowest trace, show me the full flame graph breakdown: which operation takes the most time?
+3. Check if any spans show DB query latency above 100ms
+4. Is there a correlation between high latency spans and Karpenter node provisioning events?
+
+Summarize with: top bottleneck, recommended fix, and which Datadog dashboard widget would help us monitor this going forward.</div>
+  </div>
+
+  <h3>RUM — Instrument the Stock Frontend</h3>
+
+  <div class="callout warn" style="margin-bottom:14px">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Do this in Datadog UI first — 2 minutes:</strong>
+      <ol style="margin:8px 0 0 16px;line-height:2">
+        <li>Go to <strong>UX Monitoring → RUM Applications → New Application</strong></li>
+        <li>Type: <strong>Browser</strong> · Name: <strong>stock-demo</strong> · click Create</li>
+        <li>Copy the <strong>Application ID</strong> and <strong>Client Token</strong> — paste them into the prompt below</li>
+      </ol>
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude — replace the two placeholders first</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Add Datadog RUM to the stock-frontend HTML page. I need:
+- RUM Application ID: <span class="ph">&lt;your-rum-app-id&gt;</span>
+- Client Token: <span class="ph">&lt;your-rum-client-token&gt;</span>
+- sessionSampleRate: 100, sessionReplaySampleRate: 100
+- defaultPrivacyLevel: 'mask-user-input'
+- trackUserInteractions: true, trackResources: true
+
+Update the nginx ConfigMap with the RUM snippet injected in the HTML &lt;head&gt;, apply the change, and tell me where in Datadog I can see the first RUM session appear.</div>
+  </div>
+
+  <h3>Synthetics — Proactive Uptime Testing</h3>
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create two Datadog Synthetic tests for the stock-demo app:
+
+TEST 1 — API test (every 5 min from us-east-1 and eu-west-1):
+- URL: http://<span class="ph">&lt;nlb-url&gt;</span>/api/stocks
+- Assert: status 200, response time &lt; 1000ms, body contains "AAPL"
+- Alert if 2 consecutive failures
+- Name: "Stock API — Health Check"
+
+TEST 2 — Browser test (every 15 min):
+- Start at http://<span class="ph">&lt;nlb-url&gt;</span>/
+- Assert: the price table is visible and contains at least 5 rows
+- Name: "Stock Frontend — Price Table Visible"
+
+Give me links to both tests and explain how to add them to the Stock App dashboard we created in Lab 3.</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ Lab 4 Complete When</div>
+    APM Service Map shows stock-frontend → stock-backend → postgres dependencies · RUM sessions visible in Datadog → UX Monitoring (reload the stock app page after applying the ConfigMap) · Both Synthetic tests are green and appear on the Lab 3 dashboard
+  </div>
+</div>
+
+<!-- ── LAB 6: GITHUB ── -->
+<div class="section" id="github">
+  <div class="section-header">
+    <div class="section-num">5</div>
+    <h2>GitHub — Commit Everything, Enable the Team</h2>
+    <span class="time-badge">⏱ 15 min</span>
+  </div>
+
+  <div class="customer-hook">
+    <div class="hook-label">🐶 SE Value</div>
+    <strong>Every demo you build becomes a reusable asset.</strong> Push to GitHub so any SEMEA SE can fork it, adapt it for their customer, and run it in their own <span class="inline-code">semea-eks-&lt;name&gt;</span> cluster in minutes.
+  </div>
+
+  <div class="grid-2" style="margin-bottom:14px">
+    <div class="card">
+      <div class="card-title">📁 What to Commit</div>
+      <ul style="margin-top:8px;font-size:13px">
+        <li>All YAML manifests (namespaces, deployments, services, Karpenter NodePool)</li>
+        <li>Karpenter NodePool + EC2NodeClass definitions</li>
+        <li>OPW pipeline config (Vector YAML)</li>
+        <li>Datadog Agent DaemonSet config</li>
+        <li><span class="inline-code">~/.claude/CLAUDE.md</span> — your session context</li>
+        <li>Any scripts created during the labs</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🤝 How Teammates Use It</div>
+      <ul style="margin-top:8px;font-size:13px">
+        <li>Fork the repo to their GitHub account</li>
+        <li>Clone locally, open in Claude Code</li>
+        <li>Tell Claude: <em>"I forked semea-eks-eran. Create my own cluster semea-eks-<span class="ph">&lt;name&gt;</span> using the same config"</em></li>
+        <li>Claude adapts names, re-applies everything</li>
+        <li>Full demo environment in &lt;20 minutes</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Commit everything from this session</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">First list all YAML files and scripts we created today under ~ and ~/semea-eks-<span class="ph">&lt;your-name&gt;</span>/. Then create a GitHub repo called "semea-eks-<span class="ph">&lt;your-name&gt;</span>" under my GitHub account — make it public so the SEMEA team can fork it. Write a README covering: what it is, prerequisites (EKS, EBS CSI, Karpenter, Datadog API key), and how to use it (step-by-step, referencing the lab guide). Commit everything with a meaningful message and push. Give me the repo URL.</div>
+  </div>
+
+  <div class="prompt-followup">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> Package as a Helm chart for team reuse</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Package the stock-demo app as a Helm chart with configurable values: customer name, image tags, Datadog API key, IP allowlist, replica counts. Store it in charts/ in the GitHub repo so any SEMEA SE can deploy it with: helm install stock-demo ./charts/stock-demo --set customer=acme --set ddApiKey=xxx</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ Lab 5 Complete When</div>
+    GitHub repo is live and public · All YAML manifests + scripts committed · README explains prerequisites and how to fork · Helm chart in <span class="inline-code">charts/</span> directory · Share the repo URL in <span class="inline-code">#semea-se</span> Slack channel
+  </div>
+</div>
+
+<!-- ── AI FOR PMs ── -->
+<div class="section" id="aipm">
+  <div class="section-header">
+    <div class="section-num" style="background:linear-gradient(135deg,#4fc3f7,#0284c7);font-size:13px;letter-spacing:-0.5px">PM</div>
+    <h2>Setting Up AI as a PM</h2>
+    <span class="time-badge">🎤 Massimo Sporchia</span>
+  </div>
+
+  <div class="card highlight" style="margin-bottom:18px">
+    <div class="card-title">🎤 This section is delivered by Massimo Sporchia</div>
+    <p style="font-size:13.5px;color:var(--text2);margin:6px 0 0">Content by Cat Yao · Feb 24, 2026. If a doc is outdated, search in <a href="https://cloudsearch.google.com/cloudsearch?authuser=0" target="_blank" style="color:#a07be0">Google Cloud Search</a> or <a href="https://datadoghq.atlassian.net/wiki/home" target="_blank" style="color:#a07be0">Confluence</a>.</p>
+  </div>
+
+  <!-- STEP 0: Prerequisites -->
+  <h3 style="border-left-color:#4fc3f7">Step 0 — Cursor + Claude Code (Required First)</h3>
+  <p style="margin-bottom:12px">You'll need both tools installed before setting up any MCP servers.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🖱️ Cursor</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 10px">AI-powered code editor — install first if you haven't already.</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/AIDEVX/pages/4784816411/Getting+started+with+Cursor" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none">→ Getting started with Cursor (Confluence)</a>
+    </div>
+    <div class="card">
+      <div class="card-title">💻 Claude Code</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 10px">The CLI agent used throughout this lab. See Prerequisites Step 2 for full setup.</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/AIDEVX/pages/5161190828/Getting+Started+with+Claude+Code" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none">→ Getting Started with Claude Code (Confluence)</a>
+    </div>
+  </div>
+
+  <!-- MCP SERVERS -->
+  <h3 style="border-left-color:#4fc3f7;margin-top:24px">MCP Servers — Connect Your Tools</h3>
+  <p style="margin-bottom:14px">Add these four MCP servers to Claude Code and Cursor to unlock AI-powered data analysis, ticket management, and observability from natural language.</p>
+
+  <div class="grid-2">
+
+    <!-- Snowflake -->
+    <div class="card">
+      <div class="card-title">❄️ Snowflake MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Snowflake is where all Metabase data lives. With this MCP, Claude can query business and customer data directly — no SQL skills needed.</p>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:8px">Primary setup guide:</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/~71202017b9ee5bd7af43d38c7b96612dca1aaa/pages/5737906241/Using+Claude+Code+with+Snowflake+MCP+and+Datadog+Notebooks+MCP+to+answer+data+questions+and+create+repeatable+analysis" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:5px">→ Using Claude Code with Snowflake MCP (Confluence)</a>
+      <p style="font-size:12px;color:var(--text3);margin:8px 0 4px">Also helpful:</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/APM/pages/5769561017/PM+usage+-+Snowflake+MCP+and+Claude+code+skills+for+data+analysis" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:4px">→ PM usage — Snowflake MCP + Claude Code skills</a>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/adp/pages/6078039712/Snowflake+for+MCP+AI+Agents" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:8px">→ Snowflake for MCP AI Agents</a>
+      <p style="font-size:12px;color:var(--text3);margin:8px 0 4px">Examples &amp; video tutorials:</p>
+      <a href="https://docs.google.com/document/d/1CiErnjXdrSjAnEGLYI1yWpPSyUCxqB1KdDUOXSVcy0c/edit?tab=t.agqlnxorsh5g" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:4px">→ MBR data examples (Google Doc)</a>
+      <a href="https://drive.google.com/file/d/1DeVDZlSa-5dKmYDHa0w3i3zxaCUtWSpL/view" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:4px">→ Video tutorial — customer insights with Snowflake MCP</a>
+      <a href="https://drive.google.com/drive/folders/1__l1Vd9W4WJGtPwDO6q--oUA6K1750Je" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block">→ Video tutorial folder (courtesy of Jonathan Parisot)</a>
+    </div>
+
+    <!-- Atlassian -->
+    <div class="card">
+      <div class="card-title">🔷 Atlassian MCP (Jira + Confluence)</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Read/write Jira issues and Confluence pages. Search product specs, create tickets, update docs — all from Claude.</p>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">In Cursor:</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/GTMDA/pages/6143672381/Setting+Up+an+MCP" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:8px">→ Setting Up an MCP in Cursor (Confluence)</a>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">In Claude Code:</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/~71202084be067a200c46998ba57426757c268d/pages/5265622777/Setting+up+Atlassian+MCP+Server+with+Claude+Code" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:8px">→ Setting up Atlassian MCP with Claude Code (Confluence)</a>
+      <div class="callout tip" style="margin-top:4px;padding:8px 12px">
+        <span class="callout-icon" style="font-size:14px">💡</span>
+        <div class="callout-body" style="font-size:12px">After adding: restart Claude Code, run <span class="inline-code">/mcp</span> and select the Atlassian MCP to authenticate.</div>
+      </div>
+    </div>
+
+    <!-- Data Catalog -->
+    <div class="card">
+      <div class="card-title">📊 Data Catalog MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Browse and query the Datadog data catalog — discover tables, fields, and lineage without leaving your AI session.</p>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">In Cursor:</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/GTMDA/pages/6143672381/Setting+Up+an+MCP" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:8px">→ Setting Up an MCP in Cursor (Confluence)</a>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">In Claude Code:</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/adp/pages/6238635970/Data+Catalog+MCP+Cursor+Claude" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:8px">→ Data Catalog MCP — Cursor + Claude (Confluence)</a>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:4px">Browse the catalog:</p>
+      <a href="https://analytics-data-hub.us1.prod.dog/data-catalog?tabType=snowflake" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none">→ Snowflake Data Catalog (analytics-data-hub)</a>
+    </div>
+
+    <!-- Datadog -->
+    <div class="card highlight">
+      <div class="card-title">🐶 Datadog MCP</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Query metrics, logs, dashboards, monitors, and traces in natural language. Covered in Lab 3 for SEs — setup links for Cursor and Claude Code below.</p>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">In Cursor / VS Code:</p>
+      <a href="https://docs.datadoghq.com/bits_ai/mcp_server/setup?tab=remoteauthentication#connect-in-cursor-and-vs-code" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block;margin-bottom:8px">→ Datadog MCP setup in Cursor (docs.datadoghq.com)</a>
+      <p style="font-size:12px;color:var(--text3);margin-bottom:6px">In Claude Code:</p>
+      <a href="https://docs.datadoghq.com/bits_ai/mcp_server/setup?tab=remoteauthentication#example-configurations" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block">→ Datadog MCP example configurations (docs.datadoghq.com)</a>
+    </div>
+
+  </div>
+
+  <!-- Final State -->
+  <h3 style="border-left-color:#4fc3f7;margin-top:24px">Final State — What It Should Look Like</h3>
+  <p style="margin-bottom:12px">Once all four MCP servers are added, you should see them listed in both Claude Code and Cursor.</p>
+  <div class="grid-2">
+    <div class="card success">
+      <div class="card-title">✅ Claude Code — verify with</div>
+      <div class="code-block" style="margin-top:10px">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp list</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:8px">You should see: atlassian, slack, datadog-google-workspace, snowflake, data-catalog, datadog</p>
+    </div>
+    <div class="card success">
+      <div class="card-title">✅ Cursor — verify in</div>
+      <p style="font-size:13px;color:var(--text2);margin:8px 0 4px">Cursor Settings → MCP → all four servers should show a green connected status.</p>
+      <p style="font-size:12px;color:var(--text3)">If any show red: click the server name and re-authenticate.</p>
+    </div>
+  </div>
+
+  <!-- Prototyping -->
+  <h3 style="border-left-color:#4fc3f7;margin-top:24px">Prototyping with Claude Code</h3>
+  <p style="margin-bottom:12px">Once your environment is set up, you can use Claude Code to prototype dashboards, scripts, and data tools directly in the Datadog codebase.</p>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🐙 GitHub Setup</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Required before you can prototype in the Datadog repo.</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/DESIGN/pages/5831852626/GitHub+setup" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block">→ GitHub setup guide (Confluence)</a>
+    </div>
+    <div class="card">
+      <div class="card-title">🖥️ Dev Environment Setup</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Set up your local dev environment. Note: if you hit issues with <span class="inline-code">dd-gitsign</span>, Claude Code has a known fix.</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/DESIGN/pages/5809833319/Dev+environment+setup" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none;display:block">→ Dev environment setup (Confluence)</a>
+    </div>
+  </div>
+
+  <!-- Appendix -->
+  <h3 style="border-left-color:#4fc3f7;margin-top:24px">Appendix</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🗺️ MCP Architecture</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 4px">The MCP host / client / server model — how Claude, MCP servers, and external tools connect.</p>
+      <p style="font-size:12px;color:var(--text3)">See the diagram in the "What is Claude?" section at the top of this guide, or the MCP section in the Confluence docs above.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🤝 Claude Code for Non-Technical Folks</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">A friendly intro to Claude Code for people who don't write code day-to-day.</p>
+      <a href="https://datadoghq.atlassian.net/wiki/spaces/~138865645/pages/5637701878/Claude+Code+for+Non-technical+Folks" target="_blank" style="font-size:12px;color:#a07be0;text-decoration:none">→ Claude Code for Non-technical Folks (Confluence)</a>
+    </div>
+  </div>
+
+  <div class="callout tip" style="margin-top:16px">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Codex / Claude Cowork</strong> — coming soon. This section will be updated when available.</div>
+  </div>
+</div>
+
+<!-- ── BONUS: MEETING PREP ── -->
+<div class="section" id="meetingprep">
+  <div class="section-header">
+    <div class="section-num" style="background:linear-gradient(135deg,#f59e0b,#d97706);font-size:16px">⭐</div>
+    <h2>Bonus — SE Meeting Prep (Daily AI Brief)</h2>
+    <span class="time-badge">⏱ 10 min setup · runs daily</span>
+  </div>
+
+  <div class="customer-hook" style="border-left-color:#f59e0b;background:rgba(245,158,11,0.06);border-color:rgba(245,158,11,0.3)">
+    <div class="hook-label" style="color:#f59e0b">⭐ Personal SE Workflow</div>
+    <strong>Stop manually re-reading email threads before every customer call.</strong> Claude reads your Gmail, Google Calendar, and Google Drive each morning and writes a fresh brief into your Obsidian vault — one note per customer, always up to date. Walk into every meeting already prepared.
+  </div>
+
+  <div class="dd-products">
+    <span class="dd-prod blue">📧 Gmail MCP</span>
+    <span class="dd-prod blue">📅 Google Calendar MCP</span>
+    <span class="dd-prod green">📁 Google Drive</span>
+    <span class="dd-prod orange">🗒️ Obsidian Vault</span>
+  </div>
+
+  <div class="pipeline">
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">📧</div>
+      <div class="pipe-title">Gmail</div>
+      <div class="pipe-sub">Recent emails<br>per customer</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">📅</div>
+      <div class="pipe-title">Calendar</div>
+      <div class="pipe-sub">Upcoming meetings<br>next 14 days</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p2">
+      <div class="pipe-icon">📁</div>
+      <div class="pipe-title">Drive</div>
+      <div class="pipe-sub">Decks · docs<br>shared files</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p3">
+      <div class="pipe-icon">🤖</div>
+      <div class="pipe-title">Claude</div>
+      <div class="pipe-sub">Synthesizes<br>everything</div>
+    </div>
+    <div class="pipe-arrow">→</div>
+    <div class="pipe-stage p5">
+      <div class="pipe-icon">🗒️</div>
+      <div class="pipe-title">Obsidian</div>
+      <div class="pipe-sub">Updated note<br>per customer</div>
+    </div>
+  </div>
+
+  <h3 style="border-left-color:#f59e0b">What Claude Updates Each Morning</h3>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📋 Per Customer Note</div>
+      <ul style="margin-top:8px">
+        <li>New contacts found in recent emails</li>
+        <li>Updated POC status per Datadog product</li>
+        <li>Open blockers and follow-ups</li>
+        <li>Meeting prep brief for next 14 days</li>
+        <li>New timeline entries from email history</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">🏠 Home Dashboard</div>
+      <ul style="margin-top:8px">
+        <li>All customers sorted by next meeting date</li>
+        <li>Status emoji per account (🟢🟡🔴🔵)</li>
+        <li>CSM assignment per account</li>
+        <li>Auto-refreshed every morning</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="border-left-color:#f59e0b">Step 1 — Set Up Obsidian Vault</h3>
+
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body"><strong>Install Obsidian first</strong> if you haven't: download free from <span class="inline-code">obsidian.md</span>. Create a new vault at <span class="inline-code">~/POC-Vault</span> (or any folder you prefer).</div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Paste into Claude — create the vault structure</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create an Obsidian vault structure at ~/POC-Vault for managing SE customer accounts. I need:
+
+1. ~/POC-Vault/Customers/ directory with one markdown file per customer I give you
+2. Each customer file should have frontmatter: customer, status, last_updated, dd_se, dd_ae, dd_csm
+3. Sections: Team table, Scope & Status (one row per DD product), Blockers, Meeting Prep, Timeline
+4. ~/POC-Vault/Home.md — dashboard with a table of all customers (name as [[link]], status emoji, next meeting, CSM), sorted by next meeting date
+5. ~/POC-Vault/Templates/Customer POC Template.md — blank template for new accounts
+
+My customers are: <span class="ph">&lt;comma-separated list of company names&gt;</span>
+My name: <span class="ph">&lt;your name&gt;</span>, email: <span class="ph">&lt;your@datadog.com&gt;</span></div>
+  </div>
+
+  <h3 style="border-left-color:#f59e0b">Step 2 — Daily Update Script</h3>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Gmail + Google Calendar MCPs must be connected</strong> in your Claude session before running this. They're available at <span class="inline-code">claude.ai → Settings → Integrations</span> — connect once and they persist.</div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Run this each morning — or automate it</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Update my Obsidian POC vault at ~/POC-Vault for today's customer prep. For each customer in ~/POC-Vault/Customers/:
+
+1. Search Gmail for emails from/to that customer (last 30 days)
+2. Search Google Calendar for upcoming meetings with that customer (next 14 days)
+3. Search ~/Library/CloudStorage/ for any Google Drive files related to that customer
+4. Read the existing customer file
+5. Update with: new contacts, updated POC status, new blockers, meeting prep brief for upcoming calls, new timeline entries
+6. Write back to the file — preserve all history, only add what's new
+7. Update last_updated frontmatter to today
+
+After all customers: rewrite ~/POC-Vault/Home.md with an updated dashboard table sorted by next meeting date.
+
+Keep all existing data. Don't remove historical timeline entries.</div>
+  </div>
+
+  <h3 style="border-left-color:#f59e0b">Step 3 — Automate Daily (Optional)</h3>
+
+  <div class="prompt-followup">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> First: create update_vault.sh</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create ~/POC-Vault/update_vault.sh — a shell script that runs the vault update with claude --dangerously-skip-permissions -p. The prompt inside the script should be the full daily update prompt from Step 2 (read all customers, update from Gmail + Calendar + Drive, rewrite Home.md). Make it executable with chmod +x.</div>
+  </div>
+
+  <div class="prompt-followup" style="margin-top:8px">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> Then: set up launchd to run every morning at 7am</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create a macOS launchd plist at ~/Library/LaunchAgents/com.semea.poc-vault-update.plist that runs ~/POC-Vault/update_vault.sh every morning at 07:00. Load the plist immediately with launchctl. Show me the log location so I can check it ran.</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ What you get</div>
+    Every morning at 7am, Claude reads your inbox and calendar and rewrites your customer notes.<br>
+    Open Obsidian → Home.md and you have a full briefing for every meeting that day — contacts, last email, blockers, shared docs.<br><br>
+    <strong style="color:var(--accent2)">Time saved: ~20 min of email triage per customer, per day.</strong>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Add a new customer any time:</strong> Just create a new file from the template in Obsidian (or ask Claude to create it), and the daily script picks it up automatically on the next run.</div>
+  </div>
+
+  <h3 style="border-left-color:#f59e0b">Step 4 — After Each Meeting: Capture & Update</h3>
+
+  <p>The morning brief gets you in. This prompt captures what actually happened and keeps the vault current for next time.</p>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Run right after a customer call</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Update my Obsidian note for customer <span class="ph">&lt;customer name&gt;</span> at ~/POC-Vault/Customers/<span class="ph">&lt;CustomerName&gt;</span>.md after today's meeting.
+
+What we discussed: <span class="ph">&lt;paste your raw notes or bullet points here — can be messy&gt;</span>
+
+Please:
+1. Add a new timeline entry for today with a clean summary of what was discussed
+2. Update POC status for any products we talked about
+3. Update or add any blockers that came up
+4. Update the Meeting Prep section with agreed next steps and follow-ups
+5. Add any new contacts or role changes mentioned
+6. Update last_updated to today
+
+Keep all existing history — only add and update, never delete.</div>
+  </div>
+
+  <div class="prompt-followup">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> Send a follow-up email after the meeting</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Read ~/POC-Vault/Customers/<span class="ph">&lt;CustomerName&gt;</span>.md — specifically the latest timeline entry and next steps. Draft a follow-up email to <span class="ph">&lt;contact name&gt;</span> summarising what we agreed, the next steps with owners, and confirming the next meeting date. Keep it concise — 3 short paragraphs max. Sign off as <span class="ph">&lt;your name&gt;</span>, Datadog.</div>
+  </div>
+
+  <div class="result-block">
+    <div class="result-label">✅ Full Daily Loop</div>
+    <strong>7:00am</strong> — Claude updates all customer notes from Gmail + Calendar + Drive<br>
+    <strong>Before meeting</strong> — open Obsidian, read the brief<br>
+    <strong>After meeting</strong> — paste your raw notes, Claude cleans and saves them<br>
+    <strong>Same evening</strong> — Claude drafts the follow-up email<br><br>
+    <strong style="color:var(--accent2)">Your vault stays current with zero manual effort.</strong>
+  </div>
+</div>
+
+<!-- ── BONUS: SE TEAM ANALYTICS ── -->
+<div class="section" id="analytics">
+  <div class="section-header">
+    <div class="section-num" style="background:linear-gradient(135deg,#4fc3f7,#0284c7);font-size:16px">📊</div>
+    <h2>Bonus — SE Team Analytics</h2>
+    <span class="time-badge">👤 SE Managers</span>
+  </div>
+
+  <div class="customer-hook" style="border-left-color:#4fc3f7;background:rgba(79,195,247,0.06);border-color:rgba(79,195,247,0.3)">
+    <div class="hook-label" style="color:#4fc3f7">📊 For SE Managers</div>
+    <strong>Replace hours of Salesforce exports and spreadsheet work with a single prompt.</strong> Claude connects to Snowflake, Datadog, and Atlassian simultaneously and produces 7 tables — SE activity by bucket, top accounts, active evals, post-sales health, and upcoming renewals — in minutes.
+  </div>
+
+  <div class="dd-products">
+    <span class="dd-prod blue">❄️ Snowflake MCP</span>
+    <span class="dd-prod">🐶 Datadog MCP</span>
+    <span class="dd-prod blue">🔷 Atlassian MCP</span>
+  </div>
+
+  <h3 style="border-left-color:#4fc3f7">What It Produces</h3>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">📋 Activity Analysis</div>
+      <ul style="margin-top:8px">
+        <li>Hours per SE per activity bucket (Discovery, Demo, Eval, Post-Sales, RFP, Prep, Internal)</li>
+        <li>Top 5 accounts per SE in Eval/Deal Progression</li>
+        <li>Post-Sales analysis with CSM coverage gap flags</li>
+        <li>Discovery analysis with pipeline-building highlights</li>
+      </ul>
+    </div>
+    <div class="card">
+      <div class="card-title">💼 Deal & Renewal Health</div>
+      <ul style="margin-top:8px">
+        <li>Active evaluations with sentiment, risks, next steps, staleness flags</li>
+        <li>New Logo Closed Won (last 12 months) with UMRR and renewal dates</li>
+        <li>Upcoming renewals (next 6 months) with expansion gap and urgency flags</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3 style="border-left-color:#4fc3f7">MCP Config Required</h3>
+  <div class="callout info">
+    <span class="callout-icon">ℹ️</span>
+    <div class="callout-body">Add the Snowflake MCP to your <span class="inline-code">~/.claude/claude_desktop_config.json</span> alongside the Atlassian and Datadog MCPs already configured. Replace <span class="inline-code">$(whoami)</span> with your username automatically.</div>
+  </div>
+  <div class="code-block">
+    <div class="code-header"><span class="lang">json — ~/.claude/claude_desktop_config.json</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+    <pre>{
+  "mcpServers": {
+    "snowflake": {
+      "command": "sh",
+      "args": ["-c", "uvx --python 3.12 --from git+https://github.com/Snowflake-Labs/mcp mcp-server-snowflake --service-config-file ~/.config/mcp/snowflake-config.yaml --authenticator externalbrowser --transport stdio --user \"$(whoami)@datadoghq.com\""],
+      "env": {
+        "SNOWFLAKE_ACCOUNT": "sza96462.us-east-1",
+        "SNOWFLAKE_DATABASE": "REPORTING"
+      }
+    }
+  }
+}</pre>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>Full reusable prompt:</strong> The complete 7-table analysis prompt is maintained in Confluence: <em>Sales Spot → Commercial & Mid-Market SE → How-to articles → Using AI for Team Analytics</em>. Copy the prompt from there and paste it into Claude — takes ~3 minutes to run.</div>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">⚠️</span>
+    <div class="callout-body"><strong>Key technical notes:</strong> Use <span class="inline-code">ILIKE '%firstname%'</span> to find SE names (spelling differs from Salesforce) · Use <span class="inline-code">REP_CLOSE_DATE</span> for close dates, never <span class="inline-code">CLOSE_DATE</span> · <span class="inline-code">UNION</span> is not supported — run separate queries per territory · Active users: use <span class="inline-code">FACT_ORG_PRODUCT_TARGETING_USERS_MONTHLY</span>, not <span class="inline-code">FACT_MASTER_ORG_...</span></div>
+  </div>
+</div>
+
+<!-- ── AGENT SKILLS ── -->
+<div class="section" id="skills">
+  <div class="section-header">
+    <div class="section-num" style="background:linear-gradient(135deg,#8b5cf6,#6d28d9);font-size:16px">🎯</div>
+    <h2>Agent Skills — Reusable Playbooks</h2>
+  </div>
+
+  <p>A <strong>Skill</strong> is a markdown file that defines a complete workflow for your agent — what to do, step by step, with what inputs, and what output to produce. Save it once, trigger it anytime with a natural language phrase.</p>
+
+  <div class="grid-2">
+    <div class="card highlight">
+      <div class="card-title">How It Works</div>
+      <div class="steps" style="margin-top:10px">
+        <div class="step"><div class="step-num">1</div><div class="step-content"><p>Create <span class="inline-code">~/.claude/skills/my-skill/SKILL.md</span> describing the workflow</p></div></div>
+        <div class="step"><div class="step-num">2</div><div class="step-content"><p>Reference it in <span class="inline-code">~/.claude/CLAUDE.md</span> so Claude knows it exists</p></div></div>
+        <div class="step"><div class="step-num">3</div><div class="step-content"><p>Trigger it: <em>"run the weekly Homerun report"</em> — Claude reads the skill file and follows it as a playbook</p></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">💡 SE Skill Ideas</div>
+      <ul style="margin-top:8px">
+        <li><strong>Weekly activity digest</strong> — pull Homerun data, classify, post to Slack</li>
+        <li><strong>Pre-call brief</strong> — search Jira + Confluence for account context</li>
+        <li><strong>Renewal risk report</strong> — upcoming renewals with UMRR and active users</li>
+        <li><strong>RFP answer drafter</strong> — search Confluence, draft customer response</li>
+        <li><strong>POC health check</strong> — flag stalled or at-risk evaluations</li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Create your first skill</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Create a Skill file at ~/.claude/skills/<span class="ph">&lt;skill-name&gt;</span>/SKILL.md for the following workflow:
+
+Skill name: <span class="ph">&lt;e.g. weekly-homerun-report&gt;</span>
+What it does: <span class="ph">&lt;describe the workflow in plain English&gt;</span>
+Parameters needed: <span class="ph">&lt;e.g. manager name, date range, Slack channel&gt;</span>
+Output format: <span class="ph">&lt;e.g. Slack message, Confluence page, CSV&gt;</span>
+
+Then update ~/.claude/CLAUDE.md to reference this skill so I can trigger it by name in future sessions.</div>
+  </div>
+</div>
+
+<!-- ── TIPS ── -->
+<div class="section" id="tips">
+  <div class="section-header">
+    <div class="section-num" style="background:var(--surface2);color:var(--text3);border:2px solid var(--border)">✅</div>
+    <h2>Tips & Best Practices</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card success">
+      <div class="card-title">✅ Be Specific in Prompts</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Include account name, timeframe, and desired format. <em>"Summarise last 3 months of activity for CheckPoint"</em> gets far better results than <em>"what's happening with my accounts."</em></p>
+    </div>
+    <div class="card success">
+      <div class="card-title">✅ Use CLAUDE.md for Persistent Context</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Add <span class="inline-code">~/.claude/CLAUDE.md</span> with your role, team, and common instructions. Claude reads it at the start of every session — you never repeat yourself.</p>
+    </div>
+    <div class="card warning">
+      <div class="card-title">⚠️ Limit Active MCP Tools</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">In Cursor, disable MCP tools you don't need for the current task. Each active tool consumes context window space and can slow responses. Connect Slack only when you need Slack.</p>
+    </div>
+    <div class="card warning">
+      <div class="card-title">⚠️ Avoid the GitHub MCP</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">It exposes too many tools and degrades model performance. Use the <span class="inline-code">gh</span> CLI instead — Claude runs it via shell and you get the same results with less noise.</p>
+    </div>
+    <div class="card danger">
+      <div class="card-title">🚫 Always Review Before Sending</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">AI-drafted emails, Jira updates, and Slack messages should always be reviewed before sending. Claude is a first-draft engine, not an autopilot. Especially for customer-facing content.</p>
+    </div>
+    <div class="card highlight">
+      <div class="card-title">🐶 Use --dangerously-skip-permissions for Demos</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Running <span class="inline-code">cl</span> (alias for <span class="inline-code">claude --dangerously-skip-permissions</span>) lets Claude execute commands without confirmation prompts — essential for live demos. Only use in your own terminal session.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ── MORE IDEAS ── -->
+<div class="section" id="ideas">
+  <div class="section-header">
+    <div class="section-num">💡</div>
+    <h2>More Ideas — Extend the Demo</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🤖 Autonomous AI Ops</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Claude reads a Datadog alert → queries logs and traces → diagnoses root cause → writes a fix PR → deploys it. Full autonomous remediation — the highest-impact live demo for AI-focused customers.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🌐 Multi-Region Failover</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Deploy identical stacks in us-east-1 and eu-west-1. Route53 + Datadog Synthetics monitors trigger automatic failover. Claude deploys both regions from one prompt.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">📱 Mobile Cluster Control</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Claude is connected to Telegram. Message from your phone: "Scale stock-backend to 3 replicas and show error rate." Claude executes and replies with results — no laptop needed.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🔄 CRIU Live Migration</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Checkpoint a running container preserving in-memory state, transfer cross-node, restore with same IP. Proven: counter preserved 5127→5134 across nodes via Kube-OVN.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">☁️ CloudPrem / BYOC Logs</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Demo Datadog CloudPrem — logs stay in customer S3, Datadog processes remotely. Perfect for compliance-focused customers. Claude wires the pipeline end-to-end.</p>
+    </div>
+    <div class="card">
+      <div class="card-title">🧪 Synthetic + SLO Reporting</div>
+      <p style="font-size:13.5px;color:var(--text2);margin-top:6px">Create SLOs from the Synthetic tests in Lab 4. Claude builds a weekly SLO report notebook and sets up a Slack alert when the SLO burns down faster than expected.</p>
+    </div>
+  </div>
+
+  <div class="callout dd" style="margin-top:24px">
+    <span class="callout-icon">🐶</span>
+    <div class="callout-body">
+      <strong>The real superpower:</strong> Claude remembers everything across sessions via memory files — cluster state, past decisions, credential patterns, what each project is for. Push your demos to GitHub so the whole SEMEA team can reuse them. Every POC you run makes the next one faster.
+    </div>
+  </div>
+</div>
+
+<!-- ── TROUBLESHOOTING ── -->
+<div class="section" id="troubleshoot">
+  <div class="section-header">
+    <div class="section-num">🔧</div>
+    <h2>Troubleshooting — Common Issues</h2>
+  </div>
+
+  <div class="grid-2">
+    <div class="card danger">
+      <div class="card-title">⏳ Pod Stuck in Pending</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Karpenter can't find a matching node or node isn't ready yet.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt;
+kubectl get events -n &lt;namespace&gt; --sort-by='.lastTimestamp'
+kubectl logs -n kube-system -l app.kubernetes.io/name=karpenter</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px">Common causes: NodePool instance types not available in AZ, IAM permissions missing, resource requests exceed NodePool limits</p>
+    </div>
+
+    <div class="card danger">
+      <div class="card-title">🔌 kubectl: Can't Connect to Cluster</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Credentials expired or kubeconfig not updated.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>source /tmp/aws_env.sh
+aws sts get-caller-identity
+aws eks update-kubeconfig --name semea-eks-&lt;your-name&gt; --region us-east-1</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px">If tokens show expired: get new credentials from AWS Console → your account name → "Command line or programmatic access"</p>
+    </div>
+
+    <div class="card danger">
+      <div class="card-title">🔑 MCP Auth Fails / Disconnects</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">OAuth token expired or MCP server unreachable.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash — Claude Code</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>claude mcp list          # see all registered MCPs
+claude mcp remove slack  # remove and re-add if broken
+claude mcp add --transport http --client-id 1601185624273.8899143856786 --callback-port 3118 slack https://mcp.slack.com/mcp</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px">For Atlassian: sign in at <span class="inline-code">mcp.atlassian.com</span> and re-authorise. For Datadog: re-paste your App Key when Claude asks.</p>
+    </div>
+
+    <div class="card danger">
+      <div class="card-title">💸 AWS ExpiredTokenException</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Session tokens expire every ~1 hour. Normal with SSO-based credentials.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">paste into Claude</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>Credentials expired — update /tmp/aws_env.sh and continue:
+export AWS_ACCESS_KEY_ID="&lt;new-key&gt;"
+export AWS_SECRET_ACCESS_KEY="&lt;new-secret&gt;"
+export AWS_SESSION_TOKEN="&lt;new-token&gt;"</pre>
+      </div>
+    </div>
+
+    <div class="card danger">
+      <div class="card-title">🐶 Datadog Agent Not Sending Data</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">API Key wrong, agent not running, or network policy blocking egress.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>kubectl get pods -n datadog
+kubectl logs -n datadog -l app=datadog-agent --tail=50
+kubectl exec -n datadog &lt;agent-pod&gt; -- agent status</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px">Check the API Key is correct in the secret: <span class="inline-code">kubectl get secret datadog-secret -n datadog -o yaml</span></p>
+    </div>
+
+    <div class="card danger">
+      <div class="card-title">📦 ImagePullBackOff</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 8px">Image name typo, private registry, or rate limit hit.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>kubectl describe pod &lt;pod-name&gt; -n &lt;namespace&gt; | grep -A5 Events
+# Check the image name exactly — no trailing spaces, correct tag</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px">For Docker Hub rate limits: add <span class="inline-code">imagePullPolicy: IfNotPresent</span> or use ECR public mirror</p>
+    </div>
+  </div>
+
+  <div class="prompt-followup" style="margin-top:8px">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge" style="background:var(--accent2);color:#000">C</div> Ask Claude to diagnose anything</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">Something is broken — help me diagnose. Here's the error: <span class="ph">&lt;paste error message or describe what's wrong&gt;</span>. Check pod status, events, and logs in the relevant namespace and tell me the root cause and fix.</div>
+  </div>
+</div>
+
+<!-- ── CLEANUP ── -->
+<div class="section" id="cleanup">
+  <div class="section-header">
+    <div class="section-num">🧹</div>
+    <h2>Cleanup — Avoid AWS Charges</h2>
+  </div>
+
+  <div class="callout warn">
+    <span class="callout-icon">💸</span>
+    <div class="callout-body"><strong>EKS costs money while running.</strong> An idle semea-eks cluster with 2x t3.medium base nodes costs ~$5–8/day. Delete it when you're done with the lab — you can recreate it in 20 minutes using your GitHub repo.</div>
+  </div>
+
+  <div class="grid-2" style="margin-bottom:14px">
+    <div class="card warning">
+      <div class="card-title">⚡ Quick: Delete Just the Demo Apps</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 10px">Keep the cluster running but delete the workloads to save on node costs. Karpenter will scale down unused nodes.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>kubectl delete namespace stock-demo
+kubectl delete namespace load-test
+kubectl delete namespace datadog</pre>
+      </div>
+    </div>
+    <div class="card danger">
+      <div class="card-title">🗑️ Full: Delete the Entire Cluster</div>
+      <p style="font-size:13px;color:var(--text2);margin:6px 0 10px">Deletes all nodes, load balancers, and EKS control plane. Use when done with the lab.</p>
+      <div class="code-block">
+        <div class="code-header"><span class="lang">bash</span><button class="copy-btn" onclick="copyPrompt(this)">Copy</button></div>
+        <pre>eksctl delete cluster --name semea-eks-&lt;your-name&gt; --region us-east-1</pre>
+      </div>
+      <p style="font-size:12px;color:var(--text3);margin-top:6px">Takes ~10 min. Check AWS Console → CloudFormation to confirm all stacks are deleted.</p>
+    </div>
+  </div>
+
+  <div class="prompt-block">
+    <div class="prompt-header">
+      <div class="prompt-label"><div class="claude-badge">C</div> Full cleanup via Claude</div>
+      <button class="copy-btn" onclick="copyPrompt(this)">Copy</button>
+    </div>
+    <div class="prompt-body">I'm done with the lab. Help me clean up all AWS resources to avoid charges:
+1. List all namespaces and their resource counts
+2. Delete all demo namespaces (stock-demo, load-test, datadog, live-migration if present)
+3. Check for any orphaned LoadBalancer services that might leave dangling ELBs
+4. Delete the EKS cluster semea-eks-<span class="ph">&lt;your-name&gt;</span> using eksctl
+5. After deletion, check for any remaining CloudFormation stacks or EC2 instances that need manual cleanup
+6. Confirm final AWS cost exposure is zero</div>
+  </div>
+
+  <div class="callout tip">
+    <span class="callout-icon">💡</span>
+    <div class="callout-body"><strong>All your work is saved in GitHub</strong> — recreate the full environment anytime with the Lab 1 prompt and your repo. The next SE on your team can fork it and be running in 20 minutes.</div>
+  </div>
+</div>
+
+<!-- FOOTER -->
+<div style="margin-top:48px;padding-top:22px;border-top:1px solid var(--border);text-align:center;color:var(--text3);font-size:12.5px;line-height:1.8">
+  <span style="color:#a07be0;font-weight:600">🐶 Datadog SEMEA SE Team</span><br>
+  Built with Claude Code · Each SE runs their own cluster · us-east-1
+</div>
+
+</main>
+
+<script>
+  const sections = document.querySelectorAll('.section, .hero');
+  const navLinks = document.querySelectorAll('nav a');
+  const progressBar = document.getElementById('progressBar');
+
+  function updateNav() {
+    let current = '';
+    sections.forEach(s => { if (s.getBoundingClientRect().top <= 80) current = s.id; });
+    navLinks.forEach(a => {
+      a.classList.remove('active');
+      if (a.getAttribute('href') === '#' + current) a.classList.add('active');
+    });
+    const total = document.documentElement.scrollHeight - window.innerHeight;
+    progressBar.style.transform = `scaleX(${window.scrollY / total})`;
+  }
+  window.addEventListener('scroll', updateNav);
+
+  function copyPrompt(btn) {
+    const block = btn.closest('.prompt-block, .prompt-followup, .code-block');
+    const body = block.querySelector('.prompt-body, pre');
+    navigator.clipboard.writeText(body.innerText.trim()).then(() => {
+      btn.textContent = 'Copied!';
+      btn.classList.add('copied');
+      setTimeout(() => { btn.textContent = 'Copy'; btn.classList.remove('copied'); }, 2000);
+    });
+  }
+</script>
+</body>
+</html>
